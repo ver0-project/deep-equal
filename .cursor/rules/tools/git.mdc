@@ -1,0 +1,46 @@
+---
+description: "Follow this rule when using git"
+globs:
+alwaysApply: false
+---
+
+# Git Command Usage
+
+## Context
+
+- Git commands may invoke a pager that can cause issues in automated environments or tool calls.
+- Terminal outputs from git commands can be difficult to capture when pager is active.
+- Proper git command formatting improves consistency and predictability.
+- The `--no-pager` flag prevents git from using the pager program for output.
+- This rule ensures git output is directly printed to standard output without interruption.
+
+## Critical rules
+
+- Always use `git --no-pager` when executing git commands in automated environments.
+- Use `git --no-pager log` instead of `git log` to avoid pager prompts.
+- Use `git --no-pager diff` instead of `git diff` to see full output without pagination.
+- Use `git --no-pager show` instead of `git show` to view commits without pager interference.
+- Use `git --no-pager blame` instead of `git blame` for uninterrupted blame information.
+- When piping git output (e.g., `git log | grep pattern`), always include the `--no-pager` flag.
+- For git commands that produce large outputs, consider adding limits (e.g., `git --no-pager log -n 10`).
+- The `--no-pager` flag should appear immediately after `git` and before the subcommand.
+- Terminal commands involving git that would use a pager should always include the `--no-pager` flag.
+- When creating git aliases, incorporate the `--no-pager` flag for commands that typically use pagers.
+
+## Examples
+
+<example type="valid">
+git --no-pager log -n 5
+git --no-pager diff HEAD~1
+git --no-pager show HEAD
+git --no-pager blame README.md
+git --no-pager log --oneline --graph
+</example>
+
+<example type="invalid">
+git log | cat
+git diff
+git show HEAD
+git blame README.md | less
+git log --no-pager
+</example>

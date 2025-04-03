@@ -1,0 +1,108 @@
+---
+description: "Follow this rule when creating or editing README.md files to ensure they are well-structured, engaging, and follow best practices"
+globs: "**/README.md"
+alwaysApply: false
+---
+
+# README.md Formatting Guidelines
+
+## Context
+
+- A well-formatted README is the first impression of your repository
+- Good READMEs encourage adoption and collaboration
+- Following best practices improves discoverability and usability
+- Visual elements enhance engagement and comprehension
+
+## Critical rules
+
+- Structure README with clear hierarchical headings (H1 for title, H2 for main sections, H3 for subsections)
+- Include these essential sections:
+  - Project title and description
+  - Installation instructions
+  - Usage examples
+  - Features list
+  - Contributing guidelines
+  - License information
+- Use concise, scannable paragraphs with 3-5 sentences maximum
+- Incorporate visual elements strategically:
+  - Screenshots of the application in use
+  - Diagrams explaining architecture or workflows
+  - Logo at the top when available
+- Add relevant badges at the top (build status, version, license, etc.)
+- Include code examples with proper syntax highlighting
+- Provide working examples that demonstrate real-world usage
+- Use tables for comparing features or options
+- Maintain a friendly, encouraging tone throughout
+- Close with clear next steps or call-to-action
+- Keep the entire README scannable within 2-3 minutes
+- Include requirements and dependencies section
+- Add a troubleshooting or FAQ section for common issues
+- Provide links to additional documentation when applicable
+
+## Examples
+
+<example type="valid">
+# Project Name
+
+[![Build Status](https://img.shields.io/travis/username/repo.svg)](https://travis-ci.org/username/repo)
+[![Version](https://img.shields.io/npm/v/project.svg)](https://www.npmjs.com/package/project)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+A concise, compelling description of what this project does and why it exists.
+
+![Project Demo](assets/demo.gif)
+
+## Installation
+
+```bash
+npm install project-name
+```
+
+## Quick Start
+
+```javascript
+import { feature } from "project-name";
+
+// Example showing the main use case
+const result = feature("input");
+console.log(result); // Expected output
+```
+
+## Features
+
+- **Fast Processing**: Handles large datasets efficiently
+- **Easy Integration**: Works with existing toolchains
+- **Flexible Configuration**: Customize to your specific needs
+
+## Documentation
+
+For detailed documentation, see [docs/README.md](docs/README.md).
+
+## Contributing
+
+Contributions welcome! Please check out our [contributing guidelines](CONTRIBUTING.md).
+
+## License
+
+MIT © [Your Name]
+</example>
+
+<example type="invalid">
+# My Project
+
+This is a project I made. It does stuff.
+
+To install:
+Download and run the file.
+
+Usage:
+Just use it like any other tool.
+
+You might have problems if you don't set it up right.
+
+I might add more features later.
+
+If you want to contribute just send me code.
+
+License: free
+</example>

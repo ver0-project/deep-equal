@@ -1,0 +1,104 @@
+---
+description: "Follow this rule for all coding tasks to ensure high-quality, maintainable code following best practices"
+globs:
+alwaysApply: true
+---
+
+# Code Quality Principles
+
+## Context
+
+- Writing maintainable, readable code is a priority over clever optimizations
+- Step-by-step implementation reduces errors and improves code quality
+- Proper documentation and comments enhance long-term maintainability
+- Following established coding standards improves collaboration
+- The Unix philosophy of "do one thing well" leads to more robust solutions
+
+## Critical rules
+
+- Proceed with small, focused steps instead of large, complex changes
+- Always prioritize code readability and clarity over premature optimization
+- Add explanatory comments to any complex or non-obvious logic
+- Document all exported methods, functions, classes, and constants with purpose and usage notes
+- Follow the established coding standards and conventions specific to the language in use
+- Prefer simple, straightforward solutions over complex implementations
+- Design components to do one thing well rather than multiple responsibilities
+- Use descriptive variable and function names that reveal intent
+- Break complex operations into smaller, focused functions
+- Keep functions short and focused on a single responsibility
+- Avoid deep nesting of control structures when possible
+- Use consistent formatting throughout the codebase
+- Apply the appropriate error handling approach for the language
+- Include tests for new functionality when applicable
+- Refactor duplicated code into reusable functions
+
+## Examples
+
+<example type="valid">
+// Good: Simple function with a single responsibility
+function calculateTotalPrice(items) {
+  // Sum all item prices with tax
+  return items.reduce((total, item) => {
+    return total + (item.price * (1 + item.taxRate));
+  }, 0);
+}
+
+/\*\*
+
+- Authenticates a user with provided credentials
+- @param {string} username - The user's username
+- @param {string} password - The user's password
+- @returns {Promise<User>} - The authenticated user or throws an error
+  \*/
+  export async function authenticateUser(username, password) {
+  // Validate inputs
+  if (!username || !password) {
+  throw new Error('Username and password required');
+  }
+
+// Check credentials against database
+const user = await database.findUser(username);
+if (!user || !await comparePassword(password, user.passwordHash)) {
+throw new Error('Invalid credentials');
+}
+
+return user;
+}
+</example>
+
+<example type="invalid">
+// Bad: Complex function doing multiple things with no comments
+function process(data) {
+  let r = 0;
+  let t = [];
+  for(let i=0; i<data.length; i++) {
+    if(data[i].a > 10) {
+      r += data[i].a * 1.2;
+      t.push({id: data[i].id, v: data[i].a * 1.2});
+    } else if(data[i].s === 'special') {
+      r += data[i].a * 0.8;
+      t.push({id: data[i].id, v: data[i].a * 0.8});
+      updateSpecialItems(data[i].id);
+      sendNotification(data[i].e);
+    } else {
+      r += data[i].a;
+      t.push({id: data[i].id, v: data[i].a});
+    }
+  }
+  saveTransactions(t);
+  return r;
+}
+
+// No documentation for exported function
+export function auth(u, p) {
+if(!u || !p) return null;
+const usr = db.find(u);
+if(usr && checkPw(p, usr.pw)) {
+const t = generateToken();
+usr.t = t;
+db.update(usr);
+return {user: usr, token: t};
+}
+return null;
+}
+</example>

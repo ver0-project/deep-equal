@@ -1,0 +1,122 @@
+---
+description: "Follow this rule when writing or editing Markdown documents to ensure consistent formatting and structure"
+globs: "**/*.md"
+alwaysApply: false
+---
+
+# Markdown Formatting Standards
+
+## Context
+
+- Ensures consistent formatting and structure in Markdown documents.
+- Helps maintain readability and professional appearance.
+- Applies to all Markdown document creation and editing.
+- Enables better documentation and knowledge sharing.
+- Creates consistent experience across different Markdown renderers.
+
+## Critical rules
+
+- Follow Markdown best practices for formatting.
+- Maintain clear document structure with proper heading hierarchy.
+- Use Mermaid UML diagrams for documenting complex sequences or architecture.
+- Maximum heading depth: 4 levels (h1-h4).
+- Indent content within XML tags by 2 spaces.
+- Code blocks must indicate the language properly after the initial 3 backticks.
+- Keep tables properly aligned with consistent spacing.
+- Use blank lines between different content blocks for readability.
+- Use proper list formatting: unordered lists with `-` and ordered lists with numbers.
+- Use descriptive link text rather than raw URLs.
+- Include alt text for images.
+- Keep line length under 120 characters for better readability.
+- Use fenced code blocks with language specifiers instead of indented code blocks.
+- End all sentences with a period to maintain proper grammar and readability.
+- Use proper heading capitalization (title case for h1-h2, sentence case for h3-h4).
+- Add a space after list markers (- or numbers) for consistent rendering.
+- Use consistent emphasis formatting (either \* or \_ for italics/bold, not mixed).
+
+## Examples
+
+<example type="valid">
+# Document Title
+
+## Section Heading
+
+### Sub-section
+
+#### Lowest level heading
+
+This paragraph explains the purpose of the document and provides context.
+
+- List item one
+- List item two
+- List item three
+
+1. First step
+2. Second step
+3. Third step
+
+<details>
+  <summary>Expandable section</summary>
+  
+  Content indented by 2 spaces within XML tags.
+</details>
+
+```javascript
+// Properly language-tagged code block
+function example() {
+  return true;
+}
+```
+
+| Column 1 | Column 2 | Column 3 |
+| -------- | -------- | -------- |
+| Data     | Data     | Data     |
+| More     | More     | More     |
+
+[Descriptive link text](https://example.com) instead of raw URLs.
+
+![Alt text for image](path/to/image.png)
+
+```mermaid
+sequenceDiagram
+  participant A as User
+  participant B as System
+  A->>B: Request data
+  B->>A: Return response
+```
+
+</example>
+
+<example type="invalid">
+# Document Title
+##### Too Deep Heading (5 levels)
+
+<details>
+<summary>No indentation in XML tags</summary>
+This content should be indented.
+</details>
+
+```
+// Missing language tag after backticks
+function example() {
+  return true;
+}
+```
+
+| Column 1 | Column 2 | Column 3 |
+| -------- | -------- | -------- |
+| Data     | Data     | Data     |
+
+https://raw-url-instead-of-descriptive-link.com
+
+![](path/to/image.png)
+
+```
+sequenceDiagram
+  participant A as User
+  participant B as System
+  A->>B: Request data
+  B->>A: Return response
+```
+
+</example>

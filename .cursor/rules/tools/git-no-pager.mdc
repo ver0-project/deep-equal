@@ -1,0 +1,74 @@
+---
+description: "Follow this rule when using git diff or other git listing command to ensure output displays properly without a pager"
+globs:
+alwaysApply: false
+---
+
+# Git No-Pager for Diff Command
+
+## Context
+
+- Git diff command produces output that automatically uses a pager (less, more) by default.
+- Paged output can be problematic in automated environments or when commands are performed by agents.
+- The `--no-pager` flag prevents git from using a pager for command output.
+- This rule ensures proper handling of git diff command output without interactive paging.
+- Critical for AI assistants to ensure proper display of git diff results.
+- Also applies to other git commands that produce substantial output (log, show, etc.).
+
+## Critical rules
+
+- Always use `git --no-pager diff` or append `| cat` when using the git diff command.
+- The `--no-pager` flag must be placed right after `git` and before the `diff` subcommand.
+- For git aliases or scripts that use diff, prefer using `git --no-pager diff` over piping to `cat`.
+- For programmatic access to git diff output, always use `--no-pager` to ensure reliable parsing.
+- When displaying git diff output in terminal sessions, use `--no-pager` to prevent interactive pager prompts.
+- Apply the same pattern to other git commands that trigger pager behavior:
+  - `git --no-pager log`.
+  - `git --no-pager show`.
+  - `git --no-pager branch -a`.
+- Never place `--no-pager` after the git subcommand as it won't be recognized correctly.
+- For git config, consider setting `git config --global core.pager cat` as a permanent solution.
+
+## Examples
+
+<example type="valid">
+# Viewing diff without pager
+git --no-pager diff
+
+# Viewing diff between branches without pager
+
+git --no-pager diff main..feature-branch
+
+# Viewing staged changes without pager
+
+git --no-pager diff --staged
+
+# Alternative approach using pipe to cat
+
+git diff | cat
+
+# Diff with specific file without pager
+
+git --no-pager diff filename.txt
+
+# View commit history without pager
+
+git --no-pager log --oneline -n 10
+</example>
+
+<example type="invalid">
+# Incorrect: Wrong placement of --no-pager flag
+git diff --no-pager
+
+# Incorrect: Using pager and then trying to pipe
+
+git diff | cat
+
+# Incorrect: This will trigger a pager
+
+git diff
+
+# Incorrect: Flag in wrong position
+
+git diff --staged --no-pager
+</example>

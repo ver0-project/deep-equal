@@ -1,0 +1,50 @@
+---
+description: 'Technical stack and tools used in the project'
+globs: 
+alwaysApply: false
+---
+
+# @ver0/deep-equal Tech Stack
+
+## Core Technologies
+
+- **Language**: TypeScript (with modern ES modules)
+- **Build System**: TypeScript compiler (tsc) with custom build configuration
+- **Package Management**: Yarn (Berry)
+- **Module System**: ES Modules (type: "module")
+
+## Testing & Quality
+
+- **Testing Framework**: Vitest
+- **Code Coverage**: Vitest with V8 coverage
+- **Code Quality**:
+  - ESLint with @ver0/eslint-config
+  - Prettier for code formatting
+  - Husky for git hooks
+  - lint-staged for pre-commit linting
+  - commitlint for commit message validation
+
+## CI/CD
+
+- **Continuous Integration**: GitHub Actions
+- **Release Management**: semantic-release
+- **Coverage Reporting**: Codecov
+
+## Dependencies
+
+### Development Dependencies
+
+- **Testing**: Vitest, @vitest/coverage-v8
+- **Linting**: ESLint, @ver0/eslint-config, @ver0/eslint-formatter-gha
+- **Git Hooks**: Husky, lint-staged, commitlint
+- **Build Tools**: rimraf
+- **Release**: semantic-release
+- **Benchmark Competitors**:
+  - deep-equal
+  - dequal
+  - fast-deep-equal
+  - react-fast-compare
+
+## Node.js Support
+
+- Node.js ≥ 18 (as specified in engines field) 

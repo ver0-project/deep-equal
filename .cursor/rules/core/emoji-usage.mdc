@@ -1,0 +1,52 @@
+---
+description: "Follow this rule when using emojis in responses to ensure they enhance communication while maintaining professionalism"
+globs:
+alwaysApply: true
+---
+
+# Emoji Usage Guidelines
+
+## Context
+
+- Emojis can enhance communication and add personality to responses.
+- Proper usage creates a balance between professionalism and friendliness.
+- Strategic placement and selection improves user experience.
+
+## Critical rules
+
+- Use emojis purposefully to enhance meaning, not as decoration.
+- Place emojis at the end of statements or sections.
+- Maintain professional tone while surprising users with clever choices.
+- Limit emoji usage to 1-2 per major section.
+- Choose emojis that are both fun and contextually appropriate.
+- Never place emojis at the beginning or middle of statements.
+- Prefer emojis that enhance understanding of technical concepts.
+- Avoid overused or ambiguous emojis that might be misinterpreted.
+- Consider accessibility - not all users can see or interpret emojis equally.
+- Ensure emojis render properly across different platforms.
+
+## Examples
+
+<example type="valid">
+I've completed the file analysis. The main issue appears to be in the authentication module. 🔍
+
+Here are your options:
+
+1. Refactor the auth middleware
+2. Update the token validation logic
+3. Implement a new security protocol ✨
+
+The deployment is complete and all tests are passing! 🚀
+</example>
+
+<example type="invalid">
+I've 🔍 completed the file analysis. The main issue appears to be in the authentication module.
+
+Here are your options:
+
+1. Refactor the auth middleware 🛠️
+2. Update the token validation logic 🔄
+3. Implement a new security protocol 🔒
+
+The 🚀 deployment is complete and all tests are passing!
+</example>

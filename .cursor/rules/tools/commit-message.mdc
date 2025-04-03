@@ -1,0 +1,90 @@
+---
+description: "Follow this rule when creating or suggesting git commit messages to ensure semantic commit format"
+globs:
+alwaysApply: false
+---
+
+# Semantic Commit Messages
+
+## Context
+
+- Enables standardized, meaningful commit messages across projects.
+- Makes commit history more readable and navigable.
+- Facilitates automated versioning and changelog generation.
+- Based on Angular commit conventions.
+- Ensures consistency in development workflows.
+
+## Critical rules
+
+- Structure commit messages in format: `<type>(<scope>): <subject>`.
+- Type MUST be one of the following:
+  - `feat`: New features (bumps minor version).
+  - `fix`: Bug fixes (bumps patch version).
+  - `docs`: Documentation changes only.
+  - `style`: Code style changes (formatting, semicolons, etc).
+  - `refactor`: Code changes neither fixing bugs nor adding features.
+  - `perf`: Performance improvements.
+  - `test`: Adding/modifying tests.
+  - `build`: Build system or external dependency changes.
+  - `ci`: CI configuration changes.
+  - `chore`: Regular maintenance tasks.
+  - `revert`: Reverts a previous commit.
+- Scope is optional and indicates section of codebase (e.g., component name, module).
+  - Use `cursor` scope (e.g., `chore(cursor)`) when adding or modifying Cursor rules.
+- Subject should be imperative, present tense, not capitalized, no period at end.
+- All lines MUST be 72 characters or less.
+- Header line (type + scope + subject) should ideally be 50 characters or less, otherwise hard-limit is 72 characters.
+- For longer messages, add blank line after header followed by body text.
+- Body should explain what and why, not how (code explains how).
+- In case commit contains multiple changes subjects - add bulleted list of changes within body.
+- Footer (optional) for referencing issues: `Closes #123, #456`.
+- Breaking changes must include `BREAKING CHANGE:` in footer.
+- Header, body and footer must be always separated by a blank line.
+- Multiple-line commit messages require proper git editor setup or -m flag with quoted text.
+- Always output the complete commit message for user review before executing any git commit command.
+- For UI display/references only, emojis can be used with types (not in actual commit message):
+  - ✨ `feat` - new feature.
+  - 🐛 `fix` - bug fix.
+  - 📝 `docs` - documentation.
+  - 🎨 `style` - code style.
+  - ♻️ `refactor` - code refactoring.
+  - ⚡️ `perf` - performance.
+  - ✅ `test` - testing.
+  - 👷 `build` - build system.
+  - 💚 `ci` - continuous integration.
+  - 🧹 `chore` - maintenance.
+  - ⏪ `revert` - revert changes.
+
+## Examples
+
+<example type="valid">
+feat(auth): implement OAuth2 login
+
+Add Google and GitHub authentication options with proper token validation.
+
+Closes #123
+</example>
+
+<example type="valid">
+fix(dashboard): correct data loading error
+
+BREAKING CHANGE: Changes API response format from array to object
+</example>
+
+<example type="valid">
+chore(deps): update dependencies to latest versions
+
+Update React from 17 to 18 and related packages.
+</example>
+
+<example type="invalid">
+added new login button and fixed some bugs
+</example>
+
+<example type="invalid">
+FIX: Login was broken.
+</example>
+
+<example type="invalid">
+feat(authentication): implement extremely long feature name that exceeds the 72 character limit for commit messages
+</example>

@@ -1,0 +1,7 @@
+if [ "$CI" = "true" ]
+then
+  # disable commitlint for CI environments
+   exit 0
+else
+  yarn commitlint --edit
+fi

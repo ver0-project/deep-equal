@@ -1,0 +1,141 @@
+---
+description: "Follow this rule when listing directories on Unix/Linux/macOS systems using common shell commands"
+globs:
+alwaysApply: false
+---
+
+# Unix/Linux Directory Listing
+
+## Context
+
+- This rule provides guidance on how to list directory contents on Unix-like systems (Linux, macOS, etc.).
+- Apply when user asks for directory listing or file exploration on Unix-based systems.
+- Use when navigating the filesystem on Unix platforms.
+- Unix systems typically use bash, zsh, or other POSIX-compliant shells.
+- Always consider excluding common large/noisy directories like .git, node_modules, etc.
+- macOS has BSD variants of some commands with slightly different options.
+
+## Critical rules
+
+- Use `ls` for basic directory listing.
+- Use `ls -l` for detailed listing with permissions, sizes, and dates.
+- Use `ls -la` to include hidden files (those starting with .).
+- Use `ls -lh` for human-readable file sizes (KB, MB, GB).
+- Use `ls -lt` to sort by modification time (newest first).
+- Use `ls -lS` to sort by file size (largest first).
+- Use `find . -type f -name "*.txt"` to search for files by pattern.
+- Use `find . -type d -name "*src*"` to search for directories by pattern.
+- Use `find . -type f -exec ls -lh {} \;` to get detailed listing of found files.
+- Use `du -sh *` to show disk usage of directories in human-readable format.
+- Use `du -sh */ | sort -hr` to show directories sorted by size (largest first).
+- For tree-like view, use the `tree` command if available or install it.
+- For finding files by content, use `grep -r "search-term" .`.
+- For file counting, use `find . -type f | wc -l`.
+- For macOS/BSD systems, remember options may differ slightly from GNU versions.
+- Use the more modern `fd` command instead of `find` when available for better performance and simpler syntax.
+- For searching file content with pattern context, use `grep -r "search-term" . -A 2 -B 2` to show 2 lines before and after.
+- For large directories, use `ls -la | head -20` to limit output to first 20 entries.
+- Consider using `exa` or `lsd` as modern replacements for `ls` when available.
+
+## Common exclusions
+
+- For recursive commands, exclude common large or noisy directories:
+  - Version control: `.git`, `.svn`, `.hg`.
+  - Package managers: `node_modules`, `vendor`, `bower_components`, `packages`.
+  - Build directories: `dist`, `build`, `target`, `out`.
+  - Caches: `.cache`, `__pycache__`, `.next`, `.nuxt`.
+  - Virtual environments: `venv`, `.venv`, `env`, `.env`.
+  - Dependencies: `deps`, `third_party`, `jspm_packages`.
+  - IDE/editor folders: `.idea`, `.vscode`, `.vs`.
+  - Binary files: `*.exe`, `*.dll`, `*.o`, `*.obj`.
+
+## Exclusion examples
+
+- Basic grep exclusion: `grep -r "search-term" --exclude-dir={.git,node_modules,dist} .`
+- Find with exclusion: `find . -type f -not -path "*/node_modules/*" -not -path "*/.git/*"`
+- Complex find exclusion: `find . -type f -not \( -path "*/node_modules/*" -o -path "*/.git/*" -o -path "*/dist/*" \)`
+- Directory size with exclusion: `du -sh */ | grep -v "node_modules\|.git"`
+- Modern find exclude with -prune: `find . -type f -not -path "*/\.*" -path "./node_modules" -prune -o -print`
+- Using fd with exclusions: `fd -t f -E node_modules -E .git "\.js$"`
+
+## Examples
+
+<example type="valid">
+# Basic directory listing
+ls
+
+# Show all files including hidden ones with details
+
+ls -la
+
+# Human-readable file sizes
+
+ls -lh
+
+# Sort files by modification time (newest first)
+
+ls -lt
+
+# Sort files by size (largest first)
+
+ls -lS
+
+# Find all JavaScript files, excluding node_modules and .git
+
+find . -name "_.js" -not -path "_/node*modules/*" -not -path "\_/.git/\*"
+
+# Using fd (if available) for better performance
+
+fd -t f -E node_modules -E .git "\.js$"
+
+# Count all Python files in the project
+
+find . -name "_.py" -not -path "_/venv/\*" | wc -l
+
+# Search for a string in all text files
+
+grep -r "function" --include="\*.js" --exclude-dir={node_modules,.git,dist} .
+
+# Get directory sizes sorted by largest first, excluding node_modules
+
+du -sh \*/ | grep -v "node_modules" | sort -hr
+
+# Find files modified in the last 24 hours
+
+find . -type f -mtime -1 -not -path "_/node_modules/_"
+
+# Count lines of code in all JavaScript files
+
+find . -name "_.js" -not -path "_/node_modules/\*" | xargs wc -l
+
+# Search with context (2 lines before and after matches)
+
+grep -r "function" --include="\*.js" -A 2 -B 2 .
+
+# Using modern ls alternatives if available
+
+exa -la --git
+</example>
+
+<example type="invalid">
+# Incorrect: Windows-style directory listing
+dir
+Get-ChildItem
+
+# Inefficient: Including large directories that should be excluded
+
+find . -name "\*.js" # Missing exclusions for node_modules, .git, etc.
+
+# Incorrect: Using Windows backslashes in paths
+
+find . -name "_.txt" -not -path "_\node_modules\*"
+
+# Error-prone: Not escaping spaces or special characters in paths
+
+find . -name my file.txt
+
+# Incorrect: Using PowerShell parameters with Unix commands
+
+ls --Force
+ls -Recurse
+</example>

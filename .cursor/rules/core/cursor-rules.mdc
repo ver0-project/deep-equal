@@ -1,0 +1,75 @@
+---
+description: "Always follow this rule when user requests a rule to be added or modified, or asks to remember to always do something in the future"
+globs:
+alwaysApply: true
+---
+
+# Cursor Rules Format
+
+## Rules Directory Structure
+
+Rules are organized in specific directories based on their purpose:
+
+- `core` - Core rules regarding Cursor behavior or the rules system itself
+- `local` - Local rules created on the demand of user for personal use only - this folder is gitignored and not shared with others
+- `global` - Rules that are always applied to every context
+- `overview` - Contains description of the project or projects contained in monorepo to provide high-level understanding. For monorepos, each project description contained in respective subfolders, with overall monorepo description stored in `overview` folder itself.
+- `testing` - Rules regarding testing approaches
+- `tools` - Rules regarding OS-specific and utilitary tools such as git, directory listings, etc.
+- `lng` - Rules specific to coding languages, containing subfolders named after the language (e.g., `lng/typescript`, `lng/go`). These rules are only applied to files specific to these languages. Create new language folders upon user request.
+
+## Critical rules
+
+- Rule files MUST be located under `.cursor/rules` folder and have `.mdc` extension.
+- Rules must contain front matter header in the beginning of a file.
+  - Front matter must always contain all required fields even if they are blank.
+  - Required front matter fields are `description`, `globs`, and `alwaysApply`.
+- Keep the rule short without compromising the point.
+- Do not repeat yourself throughout the rule.
+- Do not be overly verbose.
+- Everything should be as short as possible, reducing the amount of tokens used, but keeping the point clear both for agent and human reading the rule. Though it should prefer readability for agents.
+- When the rule isn't used always (`alwaysApply: false`) - it is CRITICAL for the description to contain rules when the AI MUST use the rule.
+- Use concise markdown tailored to agentic use and minimal context window usage.
+- Use XML tags to highlight content that is otherwise can be confused with rule itself.
+- Always indent XML tags content with 2 spaces.
+- Mermaid markup and Emojis are encouraged in case it is not redundant.
+- All sentences ends with period, to maintain readability.
+- Only provide examples when there is something to showcase.
+- If user asks to update rule regarding made mistake it is preferable to include the case to rule examples.
+- After rule generation or update respond with:
+  - Path to rule created or updated.
+  - Short summary of changes made.
+
+## Template for rules
+
+```mdc
+---
+description: 'short, explicit and concise description ensuring agent knows when to apply it' OR no value
+globs: './cursor/rules/\*_/_.mdc' OR no value
+alwaysApply: true OR false
+---
+
+# Rule title
+
+## Context
+
+- reason for rule to exist and why it is needed
+- when to apply the rule
+- conditions and prerequisites
+
+## Critical rules
+
+- bulleted list of understandable by agent rule that it MUST follow
+- actionable rules
+- rules are short but complete
+
+## Examples (if necessary)
+
+<example type="valid">
+valid rule application
+</example>
+
+<example type="invalid">
+invalid rule application
+</example>
+```

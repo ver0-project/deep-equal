@@ -1,0 +1,127 @@
+---
+description: "Follow this rule when listing directories on Windows systems using PowerShell"
+globs:
+alwaysApply: false
+---
+
+# Windows Directory Listing (PowerShell)
+
+## Context
+
+- This rule provides guidance on how to list directory contents on Windows systems using PowerShell.
+- Apply when user asks for directory listing or file exploration on Windows systems.
+- Use when navigating the filesystem on Windows platforms.
+- Windows systems should use PowerShell (pwsh) for optimal directory listing.
+- Always consider excluding common large/noisy directories like .git, node_modules, etc.
+- PowerShell Core (pwsh) is cross-platform but these commands are optimized for Windows.
+
+## Critical rules
+
+- Use `Get-ChildItem` (alias `dir` or `ls`) for basic directory listing.
+- Use `Get-ChildItem | Format-Table` for detailed table view.
+- Use `Get-ChildItem -Force` to include hidden files.
+- Use `Get-ChildItem -Recurse` for recursive directory listing.
+- Use `Get-ChildItem -Path C:\path\to\dir -Filter *.txt` to filter by file type.
+- Use `Get-ChildItem -Path . -Include *.txt -Recurse` for recursive searches with filtering.
+- For large directories, limit output with `Get-ChildItem | Select-Object -First 20`.
+- For finding files by content, use `Select-String -Path ".\*.txt" -Pattern "search-term"`.
+- For disk usage information, use `Get-ChildItem | Measure-Object -Property Length -Sum`.
+- For a tree-like view, use `tree /f` (Command Prompt) or create a PowerShell function.
+- Always prefix absolute paths with the drive letter (e.g., `C:\path\to\directory`).
+- For recent PowerShell versions, prefer parameter names over positional parameters.
+- Use proper error handling with `-ErrorAction` for commands that might fail.
+- Use `Sort-Object` with property names for better control over sorting results.
+- For modern PowerShell, consider using `Get-ChildItem | Sort-Object LastWriteTime -Descending` to sort by modification date.
+- Use named parameters rather than positional when the command has multiple options.
+
+## Common exclusions
+
+- For recursive commands, exclude common large or noisy directories:
+  - Version control: `.git`, `.svn`, `.hg`.
+  - Package managers: `node_modules`, `vendor`, `bower_components`, `packages`.
+  - Build directories: `dist`, `build`, `target`, `out`.
+  - Caches: `.cache`, `__pycache__`, `.next`, `.nuxt`.
+  - Virtual environments: `venv`, `.venv`, `env`, `.env`.
+  - Dependencies: `deps`, `third_party`, `jspm_packages`.
+  - IDE/editor folders: `.idea`, `.vscode`, `.vs`.
+  - Binary directories: `bin`, `obj`.
+
+## Exclusion examples
+
+- Basic exclusion: `Get-ChildItem -Recurse | Where-Object { $_.FullName -notmatch "node_modules|\.git" }`
+- Using -Exclude parameter: `Get-ChildItem -Recurse -Exclude "node_modules", ".git", "dist"`
+- For content search: `Select-String -Path ".\*" -Pattern "searchterm" -Exclude "*.dll", "*.exe" | Where-Object { $_.Path -notmatch "node_modules|\.git" }`
+- For specific directory types: `Get-ChildItem -Directory | Where-Object { $_.Name -notin @("node_modules", ".git", "dist") }`
+- Optimized filtering with Where-Object: `Get-ChildItem -Directory | Where-Object { $_.Name -notmatch "^(node_modules|\.git|dist)$" }`
+- Advanced filtering with regular expressions: `Get-ChildItem -Recurse | Where-Object { $_.FullName -notmatch "\\(node_modules|\.git|dist)\\" }`
+
+## Examples
+
+<example type="valid">
+# Basic directory listing
+Get-ChildItem
+# Or using aliases
+dir
+ls
+
+# Show hidden files
+
+Get-ChildItem -Force
+
+# Recursive search for all .txt files, excluding node_modules and .git
+
+Get-ChildItem -Path . -Include \*.txt -Recurse | Where-Object { $\_.FullName -notmatch "node_modules|\.git" }
+
+# Get disk usage for current directory excluding large directories
+
+Get-ChildItem -Directory | Where-Object { $_.Name -notin @("node_modules", ".git") } | ForEach-Object { $_.Name + " " + "{0:N2} MB" -f ((Get-ChildItem $\_ -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB) }
+
+# Find files containing specific text
+
+Select-String -Path "./\*.cs" -Pattern "TODO" | Format-Table FileName, LineNumber, Line -AutoSize
+
+# List only directories, sorted by last modified time
+
+Get-ChildItem -Directory | Sort-Object LastWriteTime -Descending
+
+# Use proper formatting for better readability
+
+Get-ChildItem | Format-Table Name, Length, LastWriteTime -AutoSize
+
+# Limit results for large directories
+
+Get-ChildItem | Select-Object -First 20
+
+# Count files by extension
+
+Get-ChildItem -File -Recurse | Group-Object Extension | Sort-Object Count -Descending
+
+# Get total size of current directory in MB
+
+"{0:N2} MB" -f ((Get-ChildItem -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)
+</example>
+
+<example type="invalid">
+# Incorrect: Unix-style listing without Get-ChildItem
+ls -la
+
+# Incorrect: Unix grep command
+
+grep -r "pattern" .
+
+# Incorrect: Unix find command
+
+find . -name "\*.txt"
+
+# Inefficient: Including large directories that should be excluded
+
+Get-ChildItem -Recurse # Missing exclusions for node_modules, .git, etc.
+
+# Incorrect: Missing drive letter in absolute paths
+
+Get-ChildItem \Users\username\Documents
+
+# Error-prone: Not using quotation marks for paths with spaces
+
+Get-ChildItem C:\User Files\Documents
+</example>
