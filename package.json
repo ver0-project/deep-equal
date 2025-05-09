@@ -43,7 +43,7 @@
 	"packageManager": "yarn@4.6.0",
 	"devDependencies": {
 		"@commitlint/cli": "^19.8.0",
-		"@commitlint/config-conventional": "^19.8.0",
+		"@commitlint/config-conventional": "^19.8.1",
 		"@types/deep-equal": "^1.0.4",
 		"@ver0/eslint-config": "^1.1.4",
 		"@ver0/eslint-formatter-gha": "^1.0.1",
