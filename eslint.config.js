@@ -9,7 +9,6 @@ const cfg = [
 	},
 	...buildConfig({
 		globals: 'node',
-		react: true,
 		vitest: true,
 	}),
 	{
@@ -26,6 +25,8 @@ const cfg = [
 			'@typescript-eslint/no-unsafe-enum-comparison': 'off',
 			'@typescript-eslint/no-unsafe-member-access': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/no-unsafe-type-assertion': 'off',
+			'@typescript-eslint/prefer-nullish-coalescing': 'error',
 		},
 	},
 ];

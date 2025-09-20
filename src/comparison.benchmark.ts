@@ -19,7 +19,7 @@ function runBenchmarks(suites: fixtures.BenchmarkSuite[], functions: Record<stri
 					() => {
 						fn(...suite.data);
 					},
-					{time: 1000}
+					{time: 1000},
 				);
 			}
 		});
