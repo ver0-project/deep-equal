@@ -10,12 +10,5 @@
 		"noImplicitThis": true,
 		"skipLibCheck": true
 	},
-	"exclude": [
-		"node_modules",
-		"dist",
-		"coverage",
-		".yarn",
-		".pnp.cjs",
-		".pnp.loader.mjs"
-	]
+	"exclude": ["node_modules", "dist", "coverage", ".yarn", ".pnp.cjs", ".pnp.loader.mjs"]
 }

@@ -23,7 +23,7 @@ class MySet extends Set {}
 const emptyObject = {};
 
 function map(object: Record<any, any>, Class?: any) {
-	const a = new (Class || Map)();
+	const a = new (Class ?? Map)();
 	// eslint-disable-next-line guard-for-in
 	for (const key in object) {
 		a.set(key, object[key]);
@@ -37,7 +37,7 @@ function myMap(object: Record<any, any>) {
 }
 
 function set(array: any[], Class?: any) {
-	const a = new (Class || Set)();
+	const a = new (Class ?? Set)();
 	for (const value of array) {
 		a.add(value);
 	}

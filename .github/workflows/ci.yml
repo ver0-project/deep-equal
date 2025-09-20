@@ -131,9 +131,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: "disable postinstall"
-        run: yarn pinst --disable
-
       - name: "Build"
         run: yarn build
 
