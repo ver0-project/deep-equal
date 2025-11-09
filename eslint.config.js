@@ -1,18 +1,34 @@
-import baseConfig from '@react-hookz/eslint-config/base.js';
-import mdConfig from '@react-hookz/eslint-config/md.js';
-import typescriptUnsafe from '@react-hookz/eslint-config/typescript-unsafe.js';
-import vitestConfig from '@react-hookz/eslint-config/vitest.js';
+import {buildConfig} from '@ver0/eslint-config';
 
 /** @typedef {import('eslint').Linter} Linter */
+
 /** @type {Linter.Config[]} */
-const config = [
+const cfg = [
 	{
-		ignores: ['.idea', 'coverage', 'dist', 'node_modules'],
+		ignores: ['dist', 'node_modules', '.yarn', 'coverage'],
 	},
-	...baseConfig,
-	...mdConfig,
-	...typescriptUnsafe,
-	...vitestConfig,
+	...buildConfig({
+		globals: 'node',
+		vitest: true,
+	}),
+	{
+		files: ['README.md'],
+		language: 'markdown/gfm',
+	},
+	{
+		files: ['**/*.ts'],
+		rules: {
+			'@typescript-eslint/no-unsafe-argument': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-unsafe-declaration-merging': 'off',
+			'@typescript-eslint/no-unsafe-enum-comparison': 'off',
+			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/no-unsafe-type-assertion': 'off',
+			'@typescript-eslint/prefer-nullish-coalescing': 'error',
+		},
+	},
 ];
 
-export default config;
+export default cfg;

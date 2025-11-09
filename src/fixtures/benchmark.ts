@@ -201,20 +201,13 @@ export const complex: BenchmarkSuite[] = [
 	},
 	{
 		name: 'sets (equal)',
-		data: [
-			new Set(Array.from({length: 100}, (_v, idx) => idx)),
-			new Set(Array.from({length: 100}, (_v, idx) => idx)),
-		],
+		data: [new Set(Array.from({length: 100}, (_v, idx) => idx)), new Set(Array.from({length: 100}, (_v, idx) => idx))],
 	},
 	{
 		name: 'sets (inequal)',
 		data: [
 			new Set(Array.from({length: 100}, (_v, idx) => idx)),
-			new Set([
-				...Array.from({length: 49}, (_v, idx) => idx),
-				1,
-				...Array.from({length: 50}, (_v, idx) => idx + 50),
-			]),
+			new Set([...Array.from({length: 49}, (_v, idx) => idx), 1, ...Array.from({length: 50}, (_v, idx) => idx + 50)]),
 		],
 	},
 	// not all benchmarked packages are able to compare data views
@@ -248,9 +241,9 @@ export const complex: BenchmarkSuite[] = [
 		data: [
 			new Uint16Array(Array.from({length: 50}).fill(2) as number[]),
 			new Uint16Array([
-				...Array.from({length: 25}).fill(2) as number[],
+				...(Array.from({length: 25}).fill(2) as number[]),
 				1,
-				...Array.from({length: 24}).fill(2) as number[],
+				...(Array.from({length: 24}).fill(2) as number[]),
 			]),
 		],
 	},

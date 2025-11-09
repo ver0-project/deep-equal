@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
-import {testCases, type TestSuite} from './fixtures/tests.js';
-import {isEqual} from './index.js';
+import type {TestSuite} from './fixtures/tests.js';
+import {testCases} from './fixtures/tests.js';
+import {isEqual} from './is-equal.js';
 
 function runSuite(suites: TestSuite[], equalFn: (a: any, b: any) => boolean) {
 	// eslint-disable-next-line vitest/valid-title

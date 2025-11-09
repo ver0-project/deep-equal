@@ -1,16 +1,9 @@
 {
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"noEmit": false,
+		"declaration": true,
 		"outDir": "./dist"
 	},
-	"include": [
-		"./src"
-	],
-	"exclude": [
-		"./src/fixtures",
-		"**/*.spec.ts",
-		"**/*.test.ts",
-		"**/*.benchmark.ts",
-	]
+	"include": ["src/is-equal.ts"],
+	"exclude": ["src/**/*.test.ts"]
 }
