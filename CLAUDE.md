@@ -34,7 +34,7 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one recu
 - **TypeScript strict mode** — ESNext target, NodeNext modules
 - **ESM only** — `"type": "module"`, `.js` extensions in imports
 - **`@ver0/eslint-config`** — all `@typescript-eslint/no-unsafe-*` rules disabled (intentional, the core function uses `any`)
-- **Conventional commits** — enforced via commitlint (`feat`, `fix`, `perf`, `refactor`, `test`, `chore`, `docs`)
+- **Conventional commits** — `feat`, `fix`, `perf`, `refactor`, `test`, `chore`, `docs`
 - **Semantic release** — automated versioning, do not manually bump versions
 
 ## Implementation Patterns
