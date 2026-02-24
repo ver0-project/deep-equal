@@ -371,31 +371,31 @@ export const testCases: TestSuite[] = [
 		tests: [
 			{
 				name: 'equal RegExp objects',
-				value1: /foo/,
-				value2: /foo/,
+				value1: /foo/v,
+				value2: /foo/v,
 				equal: true,
 			},
 			{
 				name: 'not equal RegExp objects (different pattern)',
-				value1: /foo/,
-				value2: /bar/,
+				value1: /foo/v,
+				value2: /bar/v,
 				equal: false,
 			},
 			{
 				name: 'not equal RegExp objects (different flags)',
-				value1: /foo/,
-				value2: /foo/i,
+				value1: /foo/v,
+				value2: /foo/iv,
 				equal: false,
 			},
 			{
 				name: 'RegExp and string are not equal',
-				value1: /foo/,
+				value1: /foo/v,
 				value2: 'foo',
 				equal: false,
 			},
 			{
 				name: 'RegExp and object are not equal',
-				value1: /foo/,
+				value1: /foo/v,
 				value2: {},
 				equal: false,
 			},
@@ -751,7 +751,9 @@ export const testCases: TestSuite[] = [
 			},
 			{
 				name: 'pseudo array and equivalent typed array are not equal',
-				value1: {0: 1, 1: 2, length: 2, constructor: Int32Array},
+				value1: {
+					0: 1, 1: 2, length: 2, constructor: Int32Array,
+				},
 				value2: new Int32Array([1, 2]),
 				equal: false,
 			},

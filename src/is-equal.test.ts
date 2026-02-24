@@ -27,9 +27,13 @@ function runSuite(suites: TestSuite[], equalFn: (a: any, b: any) => boolean) {
 runSuite(testCases, isEqual);
 
 it('should not throw on nested react elements with circular references #264', () => {
-	const children1: Record<any, any> = {a: 1, bax: 'qux', foo: 'bar', $$typeof: 'component'};
+	const children1: Record<any, any> = {
+		a: 1, bax: 'qux', foo: 'bar', $$typeof: 'component',
+	};
 	children1.__v = children1;
-	const children2: Record<any, any> = {a: 1, bax: 'qux', foo: 'bar', $$typeof: 'component'};
+	const children2: Record<any, any> = {
+		a: 1, bax: 'qux', foo: 'bar', $$typeof: 'component',
+	};
 	children2.__v = children2;
 
 	const propsPrevious = {children: children1};

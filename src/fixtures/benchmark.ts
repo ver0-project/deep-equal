@@ -105,11 +105,11 @@ export const simple: BenchmarkSuite[] = [
 	},
 	{
 		name: 'regexps (equal)',
-		data: [/[a-c]+/, /[a-c]+/],
+		data: [/[a-c]+/v, /[a-c]+/v],
 	},
 	{
 		name: 'regexps (inequal)',
-		data: [/[a-c]+/, /[a-d]+/],
+		data: [/[a-c]+/v, /[a-d]+/v],
 	},
 ];
 
@@ -120,7 +120,7 @@ export const complex: BenchmarkSuite[] = [
 			{
 				foo: 'value1',
 				bar: new Set([1, 2, 3]),
-				baz: /foo/i,
+				baz: /foo/iv,
 				bat: {
 					hello: new Map([['hello', 'world']]),
 					world: {
@@ -133,7 +133,7 @@ export const complex: BenchmarkSuite[] = [
 				qar: new Uint8Array([1, 2, 3, 4, 5]),
 			},
 			{
-				baz: /foo/i,
+				baz: /foo/iv,
 				foo: 'value1',
 				bar: new Set([1, 2, 3]),
 				qar: new Uint8Array([1, 2, 3, 4, 5]),
@@ -154,7 +154,7 @@ export const complex: BenchmarkSuite[] = [
 			{
 				foo: 'value1',
 				bar: new Set([1, 2, 3]),
-				baz: /foo/i,
+				baz: /foo/iv,
 				bat: {
 					hello: new Map([['hello', 'world']]),
 					world: {
@@ -166,7 +166,7 @@ export const complex: BenchmarkSuite[] = [
 				qar: new Uint8Array([1, 2, 3, 4, 5]),
 			},
 			{
-				baz: /foo/i,
+				baz: /foo/iv,
 				foo: 'value1',
 				bar: new Set([1, 2, 3]),
 				qar: new Uint8Array([1, 2, 3, 4, 5]),

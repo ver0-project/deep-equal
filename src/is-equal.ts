@@ -61,8 +61,11 @@ export const isEqual = (a: any, b: any): boolean => {
 				b = new DataView(b.buffer);
 			}
 
-			if (a.byteLength !== b.byteLength) return false;
-			for (let i = a.byteLength; i-- !== 0; ) {
+			if (a.byteLength !== b.byteLength) {
+				return false;
+			}
+
+			for (let i = a.byteLength; i-- !== 0;) {
 				if (a.getUint8(i) !== b.getUint8(i)) {
 					return false;
 				}
@@ -83,7 +86,7 @@ export const isEqual = (a: any, b: any): boolean => {
 				return false;
 			}
 
-			for (let i = a.length; i-- !== 0; ) {
+			for (let i = a.length; i-- !== 0;) {
 				if (!inner(a[i], b[i])) {
 					return false;
 				}
@@ -118,7 +121,7 @@ export const isEqual = (a: any, b: any): boolean => {
 
 		const aKeys = Object.keys(a);
 		let key;
-		for (let l = aKeys.length; l-- !== 0; ) {
+		for (let l = aKeys.length; l-- !== 0;) {
 			key = aKeys[l];
 			if (!Object.hasOwn(b, key) || !inner(a[key], b[key])) {
 				return false;
