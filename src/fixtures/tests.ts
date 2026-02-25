@@ -264,10 +264,10 @@ export const testCases: TestSuite[] = [
 				equal: false,
 			},
 			{
-				name: 'objects with different `valueOf` functions returning same values are equal',
+				name: 'objects with different `valueOf` functions returning same values are not equal',
 				value1: {valueOf: () => 'Hello world!'},
 				value2: {valueOf: () => 'Hello world!'},
-				equal: true,
+				equal: false,
 			},
 			{
 				name: 'objects with `valueOf` functions returning different values are not equal',
@@ -276,10 +276,10 @@ export const testCases: TestSuite[] = [
 				equal: false,
 			},
 			{
-				name: 'objects with different `toString` functions returning same values are equal',
+				name: 'objects with different `toString` functions returning same values are not equal',
 				value1: {toString: () => 'Hello world!'},
 				value2: {toString: () => 'Hello world!'},
-				equal: true,
+				equal: false,
 			},
 			{
 				name: 'objects with `toString` functions returning different values are not equal',
