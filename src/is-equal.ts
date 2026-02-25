@@ -139,6 +139,10 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 	}
 
 	const aKeys = Object.keys(a);
+	if (aKeys.length !== Object.keys(b).length) {
+		return false;
+	}
+
 	let key;
 	for (let l = aKeys.length; l-- !== 0;) {
 		key = aKeys[l];
@@ -147,7 +151,7 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 		}
 	}
 
-	return Object.keys(b).length === aKeys.length;
+	return true;
 };
 
 export const isEqual = (a: any, b: any): boolean => inner(a, b, undefined);
