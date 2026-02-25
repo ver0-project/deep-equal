@@ -757,6 +757,24 @@ export const testCases: TestSuite[] = [
 				value2: new Int32Array([1, 2]),
 				equal: false,
 			},
+			{
+				name: 'equal subviews into different buffers',
+				value1: new Uint8Array(new ArrayBuffer(16), 4, 4),
+				value2: new Uint8Array(new ArrayBuffer(8), 0, 4),
+				equal: true,
+			},
+			{
+				name: 'not equal subviews at different offsets of the same-content buffer',
+				value1: (() => {
+					const buf = new Uint8Array([0, 0, 0, 0, 1, 2, 3, 4]);
+					return new Uint8Array(buf.buffer, 0, 4);
+				})(),
+				value2: (() => {
+					const buf = new Uint8Array([0, 0, 0, 0, 1, 2, 3, 4]);
+					return new Uint8Array(buf.buffer, 4, 4);
+				})(),
+				equal: false,
+			},
 		],
 	},
 	{
@@ -784,6 +802,26 @@ export const testCases: TestSuite[] = [
 				name: 'not equal views (different length)',
 				value1: new DataView(new Uint16Array([1, 2, 3]).buffer),
 				value2: new DataView(new Uint16Array([1, 2]).buffer),
+				equal: false,
+			},
+			{
+				name: 'equal DataView subviews into larger buffers',
+				value1: new DataView(new ArrayBuffer(16), 4, 4),
+				value2: new DataView(new ArrayBuffer(8), 0, 4),
+				equal: true,
+			},
+			{
+				name: 'not equal DataView subviews at different offsets',
+				value1: (() => {
+					const buf = new ArrayBuffer(8);
+					new Uint8Array(buf).set([0, 0, 0, 0, 1, 2, 3, 4]);
+					return new DataView(buf, 0, 4);
+				})(),
+				value2: (() => {
+					const buf = new ArrayBuffer(8);
+					new Uint8Array(buf).set([0, 0, 0, 0, 1, 2, 3, 4]);
+					return new DataView(buf, 4, 4);
+				})(),
 				equal: false,
 			},
 		],
