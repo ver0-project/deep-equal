@@ -856,6 +856,57 @@ export const testCases: TestSuite[] = [
 		],
 	},
 	{
+		name: 'Shared array buffers',
+		tests: [
+			{
+				name: 'two empty shared buffers',
+				value1: new SharedArrayBuffer(0),
+				value2: new SharedArrayBuffer(0),
+				equal: true,
+			},
+			{
+				name: 'equal shared buffers',
+				value1: (() => {
+					const buf = new SharedArrayBuffer(6);
+					new Uint16Array(buf).set([1, 2, 3]);
+					return buf;
+				})(),
+				value2: (() => {
+					const buf = new SharedArrayBuffer(6);
+					new Uint16Array(buf).set([1, 2, 3]);
+					return buf;
+				})(),
+				equal: true,
+			},
+			{
+				name: 'not equal shared buffers (different content)',
+				value1: (() => {
+					const buf = new SharedArrayBuffer(6);
+					new Uint16Array(buf).set([1, 2, 3]);
+					return buf;
+				})(),
+				value2: (() => {
+					const buf = new SharedArrayBuffer(6);
+					new Uint16Array(buf).set([1, 3, 3]);
+					return buf;
+				})(),
+				equal: false,
+			},
+			{
+				name: 'not equal shared buffers (different length)',
+				value1: new SharedArrayBuffer(6),
+				value2: new SharedArrayBuffer(4),
+				equal: false,
+			},
+			{
+				name: 'SharedArrayBuffer and ArrayBuffer are not equal',
+				value1: new SharedArrayBuffer(4),
+				value2: new ArrayBuffer(4),
+				equal: false,
+			},
+		],
+	},
+	{
 		name: 'Array buffers',
 		tests: [
 			{
