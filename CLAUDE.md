@@ -58,7 +58,8 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
 - **Sets use reference equality** — `new Set([{a:1}])` vs `new Set([{a:1}])` returns `false`. This is intentional (O(n) vs O(n²))
 - **Lazy WeakMap** — created only when recursion into objects/arrays/maps occurs. Primitives, Date, RegExp, Set, and TypedArray comparisons never allocate it
 - **Stack depth** — recursive algorithm, deep nesting (>1000 levels) may cause stack overflow. Not mitigated; rare in practice
-- **Custom classes** — compared via `valueOf()` then `toString()` fallback. Classes without these return false for different instances with same data
+- **Symbol-keyed properties ignored** — `Object.keys()` skips symbols by design. Consistent with `for...in`, `JSON.stringify`, and spread. No deep-equal library in the ecosystem (fast-deep-equal, dequal, react-fast-compare) compares symbol keys. Real-world symbol properties are metadata (well-known symbols, `$$typeof`), not user data
+- **Custom classes** — compared via `valueOf()` then `toString()` fallback, only when both instances share the same function reference. Classes without these return false for different instances with same data
 - **TypedArray byte comparison** — all TypedArrays and DataViews compared via Uint8Array over their `byteOffset`/`byteLength` slice. Byte-level comparison preserves NaN bit patterns
 
 <git-commit-config>
