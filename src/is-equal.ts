@@ -127,11 +127,14 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 
 	// at this point, we've handled all possible data containers and we can compare objects as plain.
 
-	if (a.valueOf !== valueOf && typeof a.valueOf === 'function' && typeof b.valueOf === 'function') {
-		return a.valueOf() === b.valueOf();
+	if (typeof a.valueOf === 'function' && a.valueOf !== valueOf && a.valueOf === b.valueOf) {
+		const aVal = a.valueOf();
+		const bVal = b.valueOf();
+		// eslint-disable-next-line no-self-compare
+		return aVal === bVal || (aVal !== aVal && bVal !== bVal);
 	}
 
-	if (a.toString !== toString && typeof a.toString === 'function' && typeof b.toString === 'function') {
+	if (typeof a.toString === 'function' && a.toString !== toString && a.toString === b.toString) {
 		return a.toString() === b.toString();
 	}
 

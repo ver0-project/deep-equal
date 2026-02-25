@@ -66,3 +66,23 @@ it('should properly handle NaN', () => {
 	expect(isEqual(Number.NaN, 0)).toBe(false);
 	expect(isEqual(0, Number.NaN)).toBe(false);
 });
+
+it('should properly handle boxed NaN', () => {
+	// eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
+	const a = new Number(Number.NaN);
+	// eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
+	const b = new Number(Number.NaN);
+
+	expect(isEqual(a, b)).toBe(true);
+	expect(isEqual(a, a)).toBe(true);
+});
+
+it('should require matching valueOf/toString implementations', () => {
+	const sharedValueOf = () => 42;
+	const a = {valueOf: sharedValueOf};
+	const b = {valueOf: sharedValueOf};
+	const c = {valueOf: () => 42};
+
+	expect(isEqual(a, b)).toBe(true);
+	expect(isEqual(a, c)).toBe(false);
+});
