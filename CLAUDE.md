@@ -18,7 +18,7 @@ Single export: `isEqual(a, b)`.
 
 ```text
 src/
-  is-equal.ts              # Entire implementation (~132 lines, single exported function)
+  is-equal.ts              # Entire implementation (~157 lines, single exported function)
   is-equal.test.ts         # Test runner — iterates fixture suites + edge case tests
   comparison.benchmark.ts  # Vitest benchmarks vs other libraries
   fixtures/
@@ -30,7 +30,7 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
 
 ## Code Conventions
 
-- **Yarn 4** — `yarn@4.10.2`, node-modules linker
+- **Yarn 4** — `yarn@4.12.0`, node-modules linker
 - **TypeScript strict mode** — ESNext target, NodeNext modules
 - **ESM only** — `"type": "module"`, `.js` extensions in imports
 - **`@ver0/eslint-config`** — all `@typescript-eslint/no-unsafe-*` rules disabled (intentional, the core function uses `any`)
@@ -55,10 +55,10 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
 
 ## Gotchas
 
-- **Sets use reference equality** — `new Set([{a:1}])` vs `new Set([{a:1}])` returns `false`. This is intentional (O(n) vs O(n²))
+- **Sets use reference equality** — `new Set([{a:1}])` vs `new Set([{a:1}])` returns `false`. Intentional — respects the Set's own SameValueZero identity model rather than overriding it with deep comparison
 - **Lazy WeakMap** — created only when recursion into objects/arrays/maps occurs. Primitives, Date, RegExp, Set, and TypedArray comparisons never allocate it
 - **Stack depth** — recursive algorithm, deep nesting (>1000 levels) may cause stack overflow. Not mitigated; rare in practice
-- **Symbol-keyed properties ignored** — `Object.keys()` skips symbols by design. Consistent with `for...in`, `JSON.stringify`, and spread. No deep-equal library in the ecosystem (fast-deep-equal, dequal, react-fast-compare) compares symbol keys. Real-world symbol properties are metadata (well-known symbols, `$$typeof`), not user data
+- **Symbol-keyed properties ignored** — symbols are designed as non-enumerable hidden identifiers for metadata (well-known symbols, `$$typeof`), not data-carrying properties. Comparing them as data would contradict their intended role
 - **Custom classes** — compared via `valueOf()` then `toString()` fallback, only when both instances share the same function reference. Classes without these return false for different instances with same data
 - **TypedArray byte comparison** — all TypedArrays and DataViews compared via Uint8Array over their `byteOffset`/`byteLength` slice. Byte-level comparison preserves NaN bit patterns
 
