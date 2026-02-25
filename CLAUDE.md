@@ -26,7 +26,7 @@ src/
     benchmark.ts            # Benchmark fixtures
 ```
 
-Single-file library. All comparison logic lives in `src/is-equal.ts` as one recursive closure.
+Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function.
 
 ## Code Conventions
 
@@ -42,7 +42,7 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one recu
 - **Reverse iteration** in hot loops: `for (let i = length; i-- !== 0;)`
 - **Self-comparison for NaN**: `a !== a && b !== b` (faster than `Number.isNaN`)
 - **Prototype-based type checking**: `Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)` before constructor checks
-- **Variable reuse**: TypedArray handling reassigns `a`/`b` to DataView — intentional, not a bug
+- **Variable reuse**: parameters `a`/`b` may be reassigned locally — intentional, not a bug
 - **Cached prototype methods**: `const {valueOf, toString} = Object.prototype` at module scope
 - **eslint-disable comments** are intentional — `complexity` on the inner function, `no-self-compare` on NaN check
 
@@ -56,7 +56,24 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one recu
 ## Gotchas
 
 - **Sets use reference equality** — `new Set([{a:1}])` vs `new Set([{a:1}])` returns `false`. This is intentional (O(n) vs O(n²))
-- **WeakMap per call** — created on every `isEqual()` invocation for circular reference tracking. Overhead is a deliberate trade-off for single-API simplicity
+- **Lazy WeakMap** — created only when recursion into objects/arrays/maps occurs. Primitives, Date, RegExp, Set, and TypedArray comparisons never allocate it
 - **Stack depth** — recursive algorithm, deep nesting (>1000 levels) may cause stack overflow. Not mitigated; rare in practice
 - **Custom classes** — compared via `valueOf()` then `toString()` fallback. Classes without these return false for different instances with same data
-- **TypedArray byte comparison** — all TypedArrays converted to DataView. Handles endianness but adds conversion overhead
+- **TypedArray byte comparison** — all TypedArrays and DataViews compared via Uint8Array over their `byteOffset`/`byteLength` slice. Byte-level comparison preserves NaN bit patterns
+
+<git-commit-config>
+<extra-instructions>
+This project uses semantic-release with Angular preset (Conventional Commits).
+Commit messages directly control automated versioning:
+
+- `fix:` → patch release
+- `feat:` → minor release
+- `BREAKING CHANGE:` footer → major release
+
+Breaking changes MUST use `BREAKING CHANGE:` (two words, uppercase) as a git
+trailer in the commit footer. `BREAKING-CHANGE:` is also accepted.
+
+Do NOT use `BREAKING:` alone or `!` in the subject — the Angular preset does
+not detect these and the major version bump will be silently skipped.
+</extra-instructions>
+</git-commit-config>

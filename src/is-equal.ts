@@ -44,24 +44,24 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 		return true;
 	}
 
-	if (constructor === ArrayBuffer) {
-		a = new DataView(a);
-		b = new DataView(b);
-	}
+	if (constructor === ArrayBuffer || ArrayBuffer.isView(a)) {
+		let a8: Uint8Array;
+		let b8: Uint8Array;
 
-	if (constructor === DataView || ArrayBuffer.isView(a)) {
-		// this is a TypedArray.
-		if (constructor !== DataView) {
-			a = new DataView(a.buffer);
-			b = new DataView(b.buffer);
+		if (constructor === ArrayBuffer) {
+			a8 = new Uint8Array(a);
+			b8 = new Uint8Array(b);
+		} else {
+			a8 = new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
+			b8 = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
 		}
 
-		if (a.byteLength !== b.byteLength) {
+		if (a8.length !== b8.length) {
 			return false;
 		}
 
-		for (let i = a.byteLength; i-- !== 0;) {
-			if (a.getUint8(i) !== b.getUint8(i)) {
+		for (let i = a8.length; i-- !== 0;) {
+			if (a8[i] !== b8[i]) {
 				return false;
 			}
 		}
