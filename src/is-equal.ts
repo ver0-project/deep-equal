@@ -22,54 +22,67 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 
 	const {constructor} = a;
 
-	if (constructor === Date) {
-		return a.getTime() === b.getTime();
-	}
-
-	if (constructor === RegExp) {
-		return a.source === b.source && a.flags === b.flags;
-	}
-
-	if (constructor === Set) {
-		if (a.size !== b.size) {
-			return false;
+	switch (constructor) {
+		case Date: {
+			return a.getTime() === b.getTime();
 		}
 
-		for (const value of a) {
-			if (!b.has(value)) {
+		case RegExp: {
+			return a.source === b.source && a.flags === b.flags;
+		}
+
+		case Set: {
+			if (a.size !== b.size) {
 				return false;
 			}
+
+			for (const value of a) {
+				if (!b.has(value)) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		return true;
-	}
+		case ArrayBuffer: {
+			const a8 = new Uint8Array(a);
+			const b8 = new Uint8Array(b);
 
-	if (constructor === ArrayBuffer || ArrayBuffer.isView(a)) {
-		let a8: Uint8Array;
-		let b8: Uint8Array;
-
-		if (constructor === ArrayBuffer) {
-			a8 = new Uint8Array(a);
-			b8 = new Uint8Array(b);
-		} else {
-			a8 = new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
-			b8 = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
-		}
-
-		if (a8.length !== b8.length) {
-			return false;
-		}
-
-		for (let i = a8.length; i-- !== 0;) {
-			if (a8[i] !== b8[i]) {
+			if (a8.length !== b8.length) {
 				return false;
 			}
+
+			for (let i = a8.length; i-- !== 0;) {
+				if (a8[i] !== b8[i]) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		return true;
+		default: {
+			if (ArrayBuffer.isView(a)) {
+				const a8 = new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
+				const b8 = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+
+				if (a8.length !== b8.length) {
+					return false;
+				}
+
+				for (let i = a8.length; i-- !== 0;) {
+					if (a8[i] !== b8[i]) {
+						return false;
+					}
+				}
+
+				return true;
+			}
+		}
 	}
 
-	// Check circular references
+	// Track visited pairs to handle circular and cross references
 	if (visited?.has(a) && visited.get(a) === b) {
 		return true;
 	}
@@ -77,32 +90,38 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 	// lazily initialize WeakMap — avoids allocation when comparing non-recursive types
 	(visited ??= new WeakMap()).set(a, b);
 
-	if (constructor === Array) {
-		if (a.length !== b.length) {
-			return false;
-		}
-
-		for (let i = a.length; i-- !== 0;) {
-			if (!inner(a[i], b[i], visited)) {
+	switch (constructor) {
+		case Array: {
+			if (a.length !== b.length) {
 				return false;
 			}
+
+			for (let i = a.length; i-- !== 0;) {
+				if (!inner(a[i], b[i], visited)) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		return true;
-	}
-
-	if (constructor === Map) {
-		if (a.size !== b.size) {
-			return false;
-		}
-
-		for (const entry of a) {
-			if (!b.has(entry[0]) || !inner(entry[1], b.get(entry[0]), visited)) {
+		case Map: {
+			if (a.size !== b.size) {
 				return false;
 			}
+
+			for (const entry of a) {
+				if (!b.has(entry[0]) || !inner(entry[1], b.get(entry[0]), visited)) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		return true;
+		default: {
+			break;
+		}
 	}
 
 	// at this point, we've handled all possible data containers and we can compare objects as plain.
