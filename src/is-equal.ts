@@ -45,6 +45,7 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 			return true;
 		}
 
+		case SharedArrayBuffer:
 		case ArrayBuffer: {
 			const a8 = new Uint8Array(a);
 			const b8 = new Uint8Array(b);
