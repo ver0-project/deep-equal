@@ -1,4 +1,7 @@
 const {valueOf, toString} = Object.prototype;
+// SharedArrayBuffer requires cross-origin isolation headers in browsers;
+// guard against environments where it is not defined.
+const SAB = globalThis.SharedArrayBuffer ?? Symbol('unavailable');
 
 // eslint-disable-next-line complexity, @typescript-eslint/no-restricted-types
 const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): boolean => {
@@ -45,7 +48,7 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 			return true;
 		}
 
-		case SharedArrayBuffer:
+		case SAB:
 		case ArrayBuffer: {
 			const a8 = new Uint8Array(a);
 			const b8 = new Uint8Array(b);
