@@ -1673,7 +1673,7 @@ __metadata:
     eslint-config-xo-typescript: "npm:^9.0.0"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-n: "npm:^18.0.1"
-    eslint-plugin-no-use-extend-native: "npm:^0.7.2"
+    eslint-plugin-no-use-extend-native: "npm:^0.7.3"
     eslint-plugin-promise: "npm:^7.3.0"
     eslint-plugin-unicorn: "npm:^63.0.0"
     fast-deep-equal: "npm:^3.1.3"
@@ -3431,17 +3431,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-no-use-extend-native@npm:^0.7.2":
-  version: 0.7.2
-  resolution: "eslint-plugin-no-use-extend-native@npm:0.7.2"
+"eslint-plugin-no-use-extend-native@npm:^0.7.3":
+  version: 0.7.3
+  resolution: "eslint-plugin-no-use-extend-native@npm:0.7.3"
   dependencies:
     is-get-set-prop: "npm:^2.0.0"
     is-js-type: "npm:^3.0.0"
     is-obj-prop: "npm:^2.0.0"
     is-proto-prop: "npm:^3.0.1"
   peerDependencies:
-    eslint: ^9.3.0
-  checksum: 10c0/907a92483426b859a1ac29972086062980f2ff60027830ab7ba51c8a3e654d3821b647ce81d46b4f2aa79df0158429dc4928dc50d7b0d83cd7c5cccc6d20e5a8
+    eslint: ^9.3.0 || ^10.0.0
+  checksum: 10c0/b00cc742d5a62a631a0aaeb5f214372af27e71373126a76e82db59709d5104a29e6e626896d1a1c5cf3aa7fb7e0845e2c42faf1abb7d7584966ef3f44f65332e
   languageName: node
   linkType: hard
 
