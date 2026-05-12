@@ -52,7 +52,7 @@
 		"deep-equal": "^2.2.3",
 		"dequal": "^2.0.3",
 		"eslint": "^10",
-		"eslint-config-xo": "^0.50.0",
+		"eslint-config-xo": "^0.51.0",
 		"eslint-config-xo-typescript": "^9.0.0",
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-n": "^18.0.1",
