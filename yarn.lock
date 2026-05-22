@@ -233,7 +233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/core@npm:^1.1.1, @eslint/core@npm:^1.2.1":
+"@eslint/core@npm:^1.2.1":
   version: 1.2.1
   resolution: "@eslint/core@npm:1.2.1"
   dependencies:
@@ -310,12 +310,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/markdown@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "@eslint/markdown@npm:8.0.1"
+"@eslint/markdown@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "@eslint/markdown@npm:8.0.2"
   dependencies:
-    "@eslint/core": "npm:^1.1.1"
-    "@eslint/plugin-kit": "npm:^0.6.1"
+    "@eslint/core": "npm:^1.2.1"
+    "@eslint/plugin-kit": "npm:^0.7.1"
     github-slugger: "npm:^2.0.0"
     mdast-util-from-markdown: "npm:^2.0.2"
     mdast-util-frontmatter: "npm:^2.0.1"
@@ -325,7 +325,7 @@ __metadata:
     micromark-extension-gfm: "npm:^3.0.0"
     micromark-extension-math: "npm:^3.1.0"
     micromark-util-normalize-identifier: "npm:^2.0.1"
-  checksum: 10c0/4ed1b17f944d5095225c38fd61a9662ea394b4722378026c52effab3f2549cbee213d488bafb031941bfb60b6de5ebff2c830ff89720d94f58d415aefccbe667
+  checksum: 10c0/3893ede905f6bcd954173b4c432c402c94a9eacbe539e99e4b365d3fa9275e7c175531781cbd637654acdf6f1f84faf74894674fee51d8354af7a0cf353e3fa4
   languageName: node
   linkType: hard
 
@@ -363,16 +363,6 @@ __metadata:
     "@eslint/core": "npm:^1.1.0"
     levn: "npm:^0.4.1"
   checksum: 10c0/1d726338a9f4537fe2848796c44d801093ea3a99166dbc45bc6f7742fa2ad74ce0c2f114092ce4460710a9dfe5ea6e3500446f81842388bf81328c97c3a43d9d
-  languageName: node
-  linkType: hard
-
-"@eslint/plugin-kit@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@eslint/plugin-kit@npm:0.6.1"
-  dependencies:
-    "@eslint/core": "npm:^1.1.1"
-    levn: "npm:^0.4.1"
-  checksum: 10c0/f8354a7b92cc41e7a55d51986d192134be84f9dc0c91b5e649d075d733b56981c4ca8bf4460d54120c4c87b47984167bad2cb9bceb303f11b0a3bad22b3ed06a
   languageName: node
   linkType: hard
 
@@ -1714,7 +1704,7 @@ __metadata:
   dependencies:
     "@eslint-community/eslint-plugin-eslint-comments": "npm:^4.7.1"
     "@eslint/js": "npm:^10.0.1"
-    "@eslint/markdown": "npm:^8.0.1"
+    "@eslint/markdown": "npm:^8.0.2"
     "@types/deep-equal": "npm:^1.0.4"
     "@ver0/eslint-config": "npm:^1.6.0"
     "@ver0/eslint-formatter-gha": "npm:^1.0.1"
