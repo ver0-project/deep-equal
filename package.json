@@ -48,7 +48,7 @@
 		"@ver0/eslint-config": "^1.6.0",
 		"@ver0/eslint-formatter-gha": "^1.0.1",
 		"@vitest/coverage-v8": "^4.1.7",
-		"@vitest/eslint-plugin": "^1.6.17",
+		"@vitest/eslint-plugin": "^1.6.18",
 		"deep-equal": "^2.2.3",
 		"dequal": "^2.0.3",
 		"eslint": "^10",
