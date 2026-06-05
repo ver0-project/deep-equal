@@ -1716,7 +1716,7 @@ __metadata:
     "@eslint/js": "npm:^10.0.1"
     "@eslint/markdown": "npm:^8.0.2"
     "@types/deep-equal": "npm:^1.0.4"
-    "@ver0/eslint-config": "npm:^1.6.0"
+    "@ver0/eslint-config": "npm:^1.7.1"
     "@ver0/eslint-formatter-gha": "npm:^1.0.1"
     "@vitest/coverage-v8": "npm:^4.1.8"
     "@vitest/eslint-plugin": "npm:^1.6.19"
@@ -1741,11 +1741,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ver0/eslint-config@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "@ver0/eslint-config@npm:1.6.0"
+"@ver0/eslint-config@npm:^1.7.1":
+  version: 1.7.1
+  resolution: "@ver0/eslint-config@npm:1.7.1"
   peerDependencies:
-    "@eslint-community/eslint-plugin-eslint-comments": ^4.6.0
+    "@eslint-community/eslint-plugin-eslint-comments": ^4.7.1
     "@eslint/js": ^10.0.1
     "@eslint/json": ^1.0.1
     "@eslint/markdown": ^7.5.1
@@ -1764,7 +1764,7 @@ __metadata:
     eslint-plugin-react: ^7.37.5
     eslint-plugin-svelte: ^3.15.0
     eslint-plugin-unicorn: ^63.0.0
-    globals: ^17.3.0
+    globals: ^17.4.0
     prettier: ^3.8.1
     typescript: ^5.9.3
     typescript-eslint: ^8.56.0
@@ -1813,7 +1813,7 @@ __metadata:
       optional: true
     typescript-eslint:
       optional: true
-  checksum: 10c0/56c97715e45ffd771a8d3c5f06b9f4decbf9c2eeb70a9c683377e87437615316d221f1caa35d5d794dcdbb7a16c36ee80b01b1a6eb1de67cc9726c678ac0c2a5
+  checksum: 10c0/9d3af245971ec50c8b5d7249b01c51f0a28f427c9a81057895b9f5d3ab5ea655a188d119c7748f6a3c2bca8aafa025da8a846e0f2a9085eb00989cbd2dfc6f0e
   languageName: node
   linkType: hard
 
