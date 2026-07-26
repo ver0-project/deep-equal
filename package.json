@@ -36,7 +36,8 @@
 		"lint:fix": "vp lint --fix",
 		"test": "vp test --run",
 		"test:coverage": "vp test --run --coverage",
-		"benchmark": "vp test bench --run"
+		"benchmark": "vp test bench --run",
+		"typecheck": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"@types/deep-equal": "^1.0.4",

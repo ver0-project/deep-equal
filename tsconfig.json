@@ -1,14 +1,25 @@
 {
 	"compilerOptions": {
+		"noEmit": true,
 		"target": "ESNext",
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		"strict": true,
-		"strictNullChecks": true,
+		"moduleDetection": "force",
+		"lib": ["ESNext"],
+		"types": [],
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"erasableSyntaxOnly": true,
 		"forceConsistentCasingInFileNames": true,
-		"noImplicitAny": true,
-		"noImplicitThis": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"strict": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true
 	},
-	"exclude": ["node_modules", "dist", "coverage", ".yarn", ".pnp.cjs", ".pnp.loader.mjs"]
+	"exclude": ["node_modules", "dist", "coverage", ".yarn"]
 }
