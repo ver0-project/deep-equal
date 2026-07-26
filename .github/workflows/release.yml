@@ -23,9 +23,7 @@ jobs:
       github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push')
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
+      contents: read
       # required for npm trusted publishing (OIDC)
       id-token: write
     steps:
@@ -33,6 +31,8 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: 'master'
+          # the job token is read-only; the tag push must use GH_TOKEN from env
+          persist-credentials: false
       - name: 'Setup Vite+'
         uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1.15.0
         with:
@@ -49,5 +49,7 @@ jobs:
 
       - name: 'Release'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # a secret cannot be named GITHUB_*, so the PAT lives in GH_TOKEN --
+          # semantic-release reads either name
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: vp exec semantic-release
