@@ -28,7 +28,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "yarn build:clean && tsc --version && tsc -p tsconfig.build.json",
+		"build": "vp run build:clean && tsc --version && tsc -p tsconfig.build.json",
 		"build:clean": "rimraf dist",
 		"fmt": "vp fmt --write",
 		"fmt:check": "vp fmt --check",
