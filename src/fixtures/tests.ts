@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 export type TestCase = {
 	name: string;
 	value1: any;
@@ -24,7 +23,6 @@ const emptyObject = {};
 
 function map(object: Record<any, any>, Class?: any) {
 	const a = new (Class ?? Map)();
-	// eslint-disable-next-line guard-for-in
 	for (const key in object) {
 		a.set(key, object[key]);
 	}
@@ -752,7 +750,10 @@ export const testCases: TestSuite[] = [
 			{
 				name: 'pseudo array and equivalent typed array are not equal',
 				value1: {
-					0: 1, 1: 2, length: 2, constructor: Int32Array,
+					0: 1,
+					1: 2,
+					length: 2,
+					constructor: Int32Array,
 				},
 				value2: new Int32Array([1, 2]),
 				equal: false,
