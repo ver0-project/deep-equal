@@ -156,9 +156,10 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 		return false;
 	}
 
-	let key;
+	let key: string;
 	for (let l = aKeys.length; l-- !== 0;) {
-		key = aKeys[l];
+		// the loop index is bounded by aKeys.length, so the entry is always there.
+		key = aKeys[l]!;
 		if (!Object.hasOwn(b, key) || !inner(a[key], b[key], visited)) {
 			return false;
 		}

@@ -13,6 +13,7 @@ Deep equality comparison library. Correctness and comprehensive type support ove
 | `yarn lint:fix`      | Oxlint auto-fix                 |
 | `yarn fmt`           | Format with oxfmt               |
 | `yarn fmt:check`     | Check formatting                |
+| `yarn typecheck`     | Type check without emitting     |
 | `yarn build`         | Clean + compile TypeScript      |
 | `yarn benchmark`     | Run vitest benchmarks           |
 
@@ -34,7 +35,9 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
 ## Code Conventions
 
 - **Yarn 4** — `yarn@4.17.1`, node-modules linker
-- **TypeScript strict mode** — ESNext target, NodeNext modules
+- **TypeScript 7** — native compiler, ESNext target, NodeNext modules
+- **Strict beyond `strict`** — `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`,
+  `erasableSyntaxOnly`; the build emits declarations under `isolatedDeclarations`
 - **ESM only** — `"type": "module"`, `.js` extensions in imports
 - **Vite+ toolchain** — `vp` drives vitest, oxlint and oxfmt; everything is configured in `vite.config.ts`
 - **`@ver0/oxlint-config`** — `javascript`, `typescript` + `typescriptUnsafe`, `node` and `vitest` presets. The unsafe
