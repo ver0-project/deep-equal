@@ -81,8 +81,8 @@ isEqual(NaN, NaN); // true
 
 Primitive values (numbers, strings, booleans, `undefined`, `null`) are compared using strict equality (`===`).
 
-`NaN` is a special case — JavaScript's `===` operator considers `NaN !== NaN`, but `isEqual` treats two `NaN` values
-as equal. This also applies to boxed NaN values: `isEqual(Object(NaN), Object(NaN))` returns `true`.
+`NaN` is a special case — JavaScript's `===` operator considers `NaN !== NaN`, but `isEqual` treats two `NaN` values as
+equal. This also applies to boxed NaN values: `isEqual(Object(NaN), Object(NaN))` returns `true`.
 
 Boxed primitives (`new Number()`, `new String()`, `new Boolean()`) are compared by their underlying value using
 `valueOf()`.
@@ -168,8 +168,8 @@ element-by-element would fail because `NaN !== NaN`, but comparing the underlyin
 
 #### Custom Classes
 
-When two objects share the same prototype but don't match any of the built-in types above, `isEqual` checks whether
-the class defines a custom `valueOf()` or `toString()` method.
+When two objects share the same prototype but don't match any of the built-in types above, `isEqual` checks whether the
+class defines a custom `valueOf()` or `toString()` method.
 
 If `valueOf()` is present, differs from `Object.prototype.valueOf`, and **both instances share the same function
 reference** (which is naturally true for prototype methods), the comparison is performed by calling `valueOf()` on each
