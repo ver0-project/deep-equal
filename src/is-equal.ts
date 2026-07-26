@@ -1,9 +1,11 @@
+// these are only ever compared by identity and invoked as methods of their owner.
+// oxlint-disable-next-line typescript/unbound-method
 const {valueOf, toString} = Object.prototype;
 // SharedArrayBuffer requires cross-origin isolation headers in browsers;
 // guard against environments where it is not defined.
 const SAB = globalThis.SharedArrayBuffer ?? Symbol('unavailable');
 
-// eslint-disable-next-line complexity, @typescript-eslint/no-restricted-types
+// oxlint-disable-next-line typescript/no-restricted-types
 const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): boolean => {
 	// in case strict equality - there is nothing to check anymore.
 	if (a === b) {
@@ -11,10 +13,11 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 	}
 
 	// in case any of values is not an object, there is nothing to do, except to check strict equality.
-	if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) {
+	// null is the only falsy value left once typeof said 'object'.
+	if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) {
 		// looks weird, but it is most efficient way to test NaN.
 		// otherwise we have to involve Number.isNaN, which causes context switch and therefore is slower.
-		// eslint-disable-next-line no-self-compare
+		// oxlint-disable-next-line no-self-compare
 		return a !== a && b !== b;
 	}
 
@@ -39,8 +42,11 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 				return false;
 			}
 
+			// prototypes matched above, so b is a Set of the same kind.
+			const bSet = b as Set<unknown>;
+
 			for (const value of a) {
-				if (!b.has(value)) {
+				if (!bSet.has(value)) {
 					return false;
 				}
 			}
@@ -86,8 +92,9 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 		}
 	}
 
-	// Track visited pairs to handle circular and cross references
-	if (visited?.has(a) && visited.get(a) === b) {
+	// Track visited pairs to handle circular and cross references.
+	// b is a non-null object here, so a miss (undefined) can never match it.
+	if (visited?.get(a) === b) {
 		return true;
 	}
 
@@ -114,8 +121,11 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 				return false;
 			}
 
+			// prototypes matched above, so b is a Map of the same kind.
+			const bMap = b as Map<unknown, unknown>;
+
 			for (const entry of a) {
-				if (!b.has(entry[0]) || !inner(entry[1], b.get(entry[0]), visited)) {
+				if (!bMap.has(entry[0]) || !inner(entry[1], bMap.get(entry[0]), visited)) {
 					return false;
 				}
 			}
@@ -133,7 +143,7 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 	if (typeof a.valueOf === 'function' && a.valueOf !== valueOf && a.valueOf === b.valueOf) {
 		const aVal = a.valueOf();
 		const bVal = b.valueOf();
-		// eslint-disable-next-line no-self-compare
+		// oxlint-disable-next-line no-self-compare
 		return aVal === bVal || (aVal !== aVal && bVal !== bVal);
 	}
 

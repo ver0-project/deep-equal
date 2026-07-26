@@ -4,13 +4,13 @@ import {testCases} from './fixtures/tests.js';
 import {isEqual} from './is-equal.js';
 
 function runSuite(suites: TestSuite[], equalFn: (a: any, b: any) => boolean) {
-	// eslint-disable-next-line vitest/valid-title
+	// oxlint-disable-next-line vitest/valid-title
 	describe(equalFn.name, () => {
 		for (const suite of suites) {
-			// eslint-disable-next-line vitest/valid-title
+			// oxlint-disable-next-line vitest/valid-title
 			describe(suite.name, () => {
 				for (const test of suite.tests) {
-					// eslint-disable-next-line vitest/valid-title
+					// oxlint-disable-next-line vitest/valid-title
 					it(test.name, () => {
 						expect(equalFn(test.value1, test.value2)).toBe(test.equal);
 					});
@@ -28,11 +28,17 @@ runSuite(testCases, isEqual);
 
 it('should not throw on nested react elements with circular references #264', () => {
 	const children1: Record<any, any> = {
-		a: 1, bax: 'qux', foo: 'bar', $$typeof: 'component',
+		a: 1,
+		bax: 'qux',
+		foo: 'bar',
+		$$typeof: 'component',
 	};
 	children1.__v = children1;
 	const children2: Record<any, any> = {
-		a: 1, bax: 'qux', foo: 'bar', $$typeof: 'component',
+		a: 1,
+		bax: 'qux',
+		foo: 'bar',
+		$$typeof: 'component',
 	};
 	children2.__v = children2;
 
@@ -68,9 +74,9 @@ it('should properly handle NaN', () => {
 });
 
 it('should properly handle boxed NaN', () => {
-	// eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
+	// oxlint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
 	const a = new Number(Number.NaN);
-	// eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
+	// oxlint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
 	const b = new Number(Number.NaN);
 
 	expect(isEqual(a, b)).toBe(true);
