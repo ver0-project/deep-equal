@@ -50,9 +50,9 @@
 		"oxlint-tsgolint": "^7.0.2001",
 		"react-fast-compare": "^3.2.2",
 		"rimraf": "^6.1.3",
-		"semantic-release": "^25.0.8",
+		"semantic-release": "^25.0.9",
 		"typescript": "^7.0.2",
-		"vite-plus": "^0.2.7",
+		"vite-plus": "^0.2.8",
 		"vitest": "^4.1.10"
 	},
 	"engines": {
