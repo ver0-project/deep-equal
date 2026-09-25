@@ -42,7 +42,7 @@
 	"devDependencies": {
 		"@types/deep-equal": "^1.0.4",
 		"@ver0/oxlint-config": "^2.0.2",
-		"@vitest/coverage-v8": "^4.1.11",
+		"@vitest/coverage-v8": "^5.0.1",
 		"deep-equal": "^2.2.3",
 		"dequal": "^2.0.3",
 		"fast-deep-equal": "^3.1.3",
