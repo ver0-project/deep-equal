@@ -1,6 +1,5 @@
-import type {OxlintConfig} from 'oxlint';
-import {defineConfig} from 'vite-plus';
-import {coverageConfigDefaults} from 'vitest/config';
+import {coverageConfigDefaults, defineConfig} from 'vite-plus';
+import type {OxlintConfig} from 'vite-plus/lint';
 import javascript from '@ver0/oxlint-config/javascript.js';
 import typescript, {typescriptUnsafe} from '@ver0/oxlint-config/typescript.js';
 import node from '@ver0/oxlint-config/node.js';
