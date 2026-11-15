@@ -1390,7 +1390,7 @@ __metadata:
   dependencies:
     "@arethetypeswrong/core": "npm:^0.18.5"
     "@types/deep-equal": "npm:^1.0.4"
-    "@ver0/oxlint-config": "npm:^2.0.2"
+    "@ver0/oxlint-config": "npm:^2.0.4"
     "@vitest/coverage-v8": "npm:^5.1.0"
     deep-equal: "npm:^2.2.3"
     dequal: "npm:^2.0.3"
@@ -1403,15 +1403,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ver0/oxlint-config@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@ver0/oxlint-config@npm:2.0.2"
+"@ver0/oxlint-config@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "@ver0/oxlint-config@npm:2.0.4"
   peerDependencies:
-    oxlint: ^1.75.0
+    oxlint: ^1.87.0
   peerDependenciesMeta:
     oxlint:
       optional: true
-  checksum: 10c0/d6e8b981ef1fdc269251dfff76ab98a842d2e6c20a542330d98559a5406b208d1656435da1330928b9a6df3cb3a2e4fa4c7450a7d6a77f64c39326ee0d4adfdf
+  checksum: 10c0/0a76b514f1cb5ee00b56b9dc131bdd0b79b68ffed2670c1b6c62c25966461fdd4373bf04ba5bc12e9f90d6dc5a3fa3c4fdcd16b990bf0eaedea0356812046f7d
   languageName: node
   linkType: hard
 

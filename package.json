@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@arethetypeswrong/core": "^0.18.5",
 		"@types/deep-equal": "^1.0.4",
-		"@ver0/oxlint-config": "^2.0.2",
+		"@ver0/oxlint-config": "^2.0.4",
 		"@vitest/coverage-v8": "^5.1.0",
 		"deep-equal": "^2.2.3",
 		"dequal": "^2.0.3",
