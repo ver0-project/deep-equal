@@ -6,8 +6,7 @@
     "the-blueprint@foundry": true,
     "the-coder@foundry": true,
     "the-workflow@foundry": true,
-    "javascript@foundry": true,
-    "typescript@foundry": true
+    "javascript@foundry": true
   },
   "extraKnownMarketplaces": {
     "foundry": {
@@ -17,5 +16,5 @@
       }
     }
   },
-  "outputStyle": "ai-helpers:Software Engineer"
+  "outputStyle": "the-coder:Software Engineer"
 }
