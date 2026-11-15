@@ -187,6 +187,24 @@ plain objects.
 Circular and cross-references between objects are handled correctly. Visited object pairs are tracked during recursion
 to detect cycles, so self-referential structures are compared without infinite loops.
 
+Two circular structures are equal when they unfold to the same value, even if their cycles have different lengths:
+
+```javascript
+const a = {n: 1};
+a.next = a;
+
+const c = {n: 1, next: {n: 1}};
+c.next.next = c;
+
+isEqual(a, c); // true — both are an endless chain of {n: 1}
+```
+
+Node's `util.isDeepStrictEqual` returns `false` for this pair.
+
+The comparison recurses once per pair of objects it visits and skips a pair whose objects are already known to be equal,
+so two cycles of coprime lengths `n` and `m` recurse about `n + m` levels deep. Long cycles and deep nesting can exceed
+the call stack and throw a `RangeError`.
+
 ### Performance
 
 Check out the benchmarks by running `yarn benchmark` in the project directory.
