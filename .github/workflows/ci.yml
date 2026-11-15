@@ -108,13 +108,28 @@ jobs:
           files: coverage/test-report.junit.xml
           fail_ci_if_error: true
 
+  # The protect-master ruleset requires the status check of this job and of no other, so the ruleset does not list the
+  # matrix jobs. The job passes only when each job it needs passed.
+  ci-ok:
+    if: always()
+    needs: ['check', 'build', 'test']
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Check that each job passed'
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          jq --exit-status 'all(. == "success")' <<< "$RESULTS"
+
+  # The merge waits for ci-ok: the ruleset rejects a merge while the required status check is pending.
   dependabot-merge:
     name: 'Dependabot automerge'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
       contents: write
-    needs: ['test', 'build', 'check']
+    needs: ['ci-ok']
     if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
     steps:
       - uses: fastify/github-action-merge-dependabot@73ec4cbb5e56df5591eae286972d5b2201ffe90f # v3.15.0
