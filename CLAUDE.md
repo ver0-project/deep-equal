@@ -40,6 +40,8 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
   `erasableSyntaxOnly`; the build emits declarations under `isolatedDeclarations`
 - **ESM only** — `"type": "module"`, `.js` extensions in imports
 - **Vite+ toolchain** — `vp` drives vitest, oxlint and oxfmt; everything is configured in `vite.config.ts`
+- **`vite-plus/test`** — test and benchmark files import the test API from it. The package depends on neither `vitest`
+  nor `oxlint`; `vite-plus` bundles both
 - **`@ver0/oxlint-config`** — `javascript`, `typescript` + `typescriptUnsafe`, `node` and `vitest` presets. The unsafe
   preset disables the `no-unsafe-*` family (intentional, the core function uses `any`)
 - **Conventional commits** — `feat`, `fix`, `perf`, `refactor`, `test`, `chore`, `docs`
