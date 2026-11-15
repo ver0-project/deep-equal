@@ -22,7 +22,7 @@ Deep equality comparison library. Correctness and comprehensive type support ove
 ```text
 vite.config.ts             # Vite+ config — test, pack, lint and fmt in one place
 src/
-  is-equal.ts              # Entire implementation (~157 lines, single exported function)
+  is-equal.ts              # Entire implementation (~210 lines, single exported function)
   is-equal.test.ts         # Test runner — iterates fixture suites + edge case tests
   comparison.benchmark.ts  # Vitest benchmarks vs other libraries
   fixtures/
@@ -30,7 +30,8 @@ src/
     benchmark.ts            # Benchmark fixtures
 ```
 
-Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function.
+Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function, `inner`,
+with the `rootOf` helper for the union-find lookup.
 
 ## Code Conventions
 
@@ -58,7 +59,7 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
 - **Variable reuse**: parameters `a`/`b` may be reassigned locally — intentional, not a bug
 - **Cached prototype methods**: `const {valueOf, toString} = Object.prototype` at module scope
 - **oxlint-disable comments** are intentional — `typescript/unbound-method` on the prototype method cache,
-  `typescript/no-restricted-types` on the `WeakMap<object, object>` signature, `no-self-compare` on the NaN checks
+  `typescript/no-restricted-types` on the `Visited` type, `no-self-compare` on the NaN checks
 
 ## Testing
 
@@ -74,8 +75,14 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
   Set's own SameValueZero identity model rather than overriding it with deep comparison
 - **Lazy WeakMap** — created only when recursion into objects/arrays/maps occurs. Primitives, Date, RegExp, Set, and
   TypedArray comparisons never allocate it
+- **Cycles compare by unfolded value** — two circular structures are equal when they unfold to the same value, even with
+  cycle lengths that differ. Node's `util.isDeepStrictEqual` returns `false` for such pairs. The visited WeakMap maps
+  each object to the first object it was compared with. An object met with a second partner makes the two partners equal
+  to each other: their classes merge in the union-find `Map` at `visited.classes`, and a pair whose partners already
+  share a class counts as equal and is not compared again. Two rings of coprime lengths `n` and `m` visit about `n + m`
+  pairs, not `n * m`. A getter whose value changes between reads can therefore see fewer reads than one per pair
 - **Stack depth** — recursive algorithm, deep nesting (>1000 levels) may cause stack overflow. Not mitigated; rare in
-  practice
+  practice. Two rings of coprime lengths `n` and `m` recurse about `n + m` levels, so long rings can overflow too
 - **Symbol-keyed properties ignored** — symbols are designed as non-enumerable hidden identifiers for metadata
   (well-known symbols, `$$typeof`), not data-carrying properties. Comparing them as data would contradict their intended
   role

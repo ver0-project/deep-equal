@@ -50,6 +50,110 @@ it('should not throw on nested react elements with circular references #264', ()
 	}).not.toThrow();
 });
 
+it('should compare circular objects with different cycle lengths #432', () => {
+	const a: Record<any, any> = {n: 1};
+	a.next = a;
+
+	const b: Record<any, any> = {n: 1, next: {n: 2}};
+	b.next.next = b;
+
+	const c: Record<any, any> = {n: 1, next: {n: 1}};
+	c.next.next = c;
+
+	expect(isEqual(a, b)).toBe(false);
+	expect(isEqual(b, a)).toBe(false);
+	expect(isEqual(a, c)).toBe(true);
+	expect(isEqual(c, a)).toBe(true);
+});
+
+it('should compare a one-object cycle with three-object cycles #432', () => {
+	const a: Record<any, any> = {n: 1};
+	a.next = a;
+
+	const ring: Record<any, any> = {n: 1, next: {n: 1, next: {n: 1}}};
+	ring.next.next.next = ring;
+
+	const ringWithOtherValue: Record<any, any> = {n: 1, next: {n: 1, next: {n: 2}}};
+	ringWithOtherValue.next.next.next = ringWithOtherValue;
+
+	const tailIntoSelfLoop: Record<any, any> = {n: 1, next: {n: 1, next: {n: 1}}};
+	tailIntoSelfLoop.next.next.next = tailIntoSelfLoop.next.next;
+
+	expect(isEqual(a, ring)).toBe(true);
+	expect(isEqual(ring, a)).toBe(true);
+	expect(isEqual(a, ringWithOtherValue)).toBe(false);
+	expect(isEqual(ringWithOtherValue, a)).toBe(false);
+	expect(isEqual(a, tailIntoSelfLoop)).toBe(true);
+	expect(isEqual(tailIntoSelfLoop, a)).toBe(true);
+});
+
+function ringOf(length: number, lastValue = 1): Record<any, any> {
+	const nodes: Array<Record<any, any>> = Array.from({length}, () => ({n: 1}));
+	nodes[length - 1]!.n = lastValue;
+	for (let i = 0; i < length; i++) {
+		nodes[i]!.next = nodes[(i + 1) % length];
+	}
+
+	return nodes[0]!;
+}
+
+it.each([[88, 89]])('should compare rings of %i and %i objects #432', (shorter, longer) => {
+	expect(isEqual(ringOf(shorter), ringOf(longer))).toBe(true);
+	expect(isEqual(ringOf(longer), ringOf(shorter))).toBe(true);
+	expect(isEqual(ringOf(shorter), ringOf(longer, 2))).toBe(false);
+	expect(isEqual(ringOf(longer, 2), ringOf(shorter))).toBe(false);
+});
+
+it('should compare circular arrays with different cycle lengths #432', () => {
+	const x: any[] = [];
+	x.push(x);
+
+	const y: any[] = [[]];
+	y[0].push(y);
+
+	const xWithValue: any[] = [1];
+	xWithValue.push(xWithValue);
+
+	const yWithOtherValue: any[] = [1, [2]];
+	yWithOtherValue[1].push(yWithOtherValue);
+
+	expect(isEqual(x, y)).toBe(true);
+	expect(isEqual(y, x)).toBe(true);
+	expect(isEqual(xWithValue, yWithOtherValue)).toBe(false);
+	expect(isEqual(yWithOtherValue, xWithValue)).toBe(false);
+});
+
+it('should compare circular maps with different cycle lengths #432', () => {
+	const m1 = new Map<string, any>();
+	m1.set('next', m1).set('n', 1);
+
+	const m2 = new Map<string, any>();
+	const m2Next = new Map<string, any>();
+	m2.set('next', m2Next).set('n', 1);
+	m2Next.set('next', m2).set('n', 2);
+
+	const m3 = new Map<string, any>();
+	const m3Next = new Map<string, any>();
+	m3.set('next', m3Next).set('n', 1);
+	m3Next.set('next', m3).set('n', 1);
+
+	expect(isEqual(m1, m2)).toBe(false);
+	expect(isEqual(m2, m1)).toBe(false);
+	expect(isEqual(m1, m3)).toBe(true);
+	expect(isEqual(m3, m1)).toBe(true);
+});
+
+it('should not mutate a Set subclass instance met as one of several partners #432', () => {
+	class MySet extends Set {}
+	const shared = new MySet();
+	const first = new MySet();
+	const second = new MySet();
+
+	expect(isEqual([shared, shared], [first, second])).toBe(true);
+	expect(first.size).toBe(0);
+	expect(second.size).toBe(0);
+});
+
 it('should properly handle null-prototype objects', () => {
 	const a = Object.create(null);
 	const b = Object.create(null);

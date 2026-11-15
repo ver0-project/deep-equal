@@ -5,8 +5,30 @@ const {valueOf, toString} = Object.prototype;
 // guard against environments where it is not defined.
 const SAB = globalThis.SharedArrayBuffer ?? Symbol('unavailable');
 
+// `classes` links objects that must equal each other because they were both compared with one object; a class root has
+// no link.
 // oxlint-disable-next-line typescript/no-restricted-types
-const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): boolean => {
+type Visited = WeakMap<object, object> & {classes?: Map<unknown, unknown>};
+
+// path halving relinks every other node on the way to its grandparent, which keeps later walks short.
+const rootOf = (classes: Map<unknown, unknown>, value: unknown): unknown => {
+	let node = value;
+	let parent = classes.get(node);
+	while (parent !== undefined) {
+		const grandparent = classes.get(parent);
+		if (grandparent === undefined) {
+			return parent;
+		}
+
+		classes.set(node, grandparent);
+		node = grandparent;
+		parent = classes.get(node);
+	}
+
+	return node;
+};
+
+const inner = (a: any, b: any, visited: Visited | undefined): boolean => {
 	// in case strict equality - there is nothing to check anymore.
 	if (a === b) {
 		return true;
@@ -93,13 +115,27 @@ const inner = (a: any, b: any, visited: WeakMap<object, object> | undefined): bo
 	}
 
 	// Track visited pairs to handle circular and cross references.
+	const seen = visited?.get(a);
 	// b is a non-null object here, so a miss (undefined) can never match it.
-	if (visited?.get(a) === b) {
+	if (seen === b) {
 		return true;
 	}
 
 	// lazily initialize WeakMap — avoids allocation when comparing non-recursive types
-	(visited ??= new WeakMap()).set(a, b);
+	visited ??= new WeakMap();
+	if (seen === undefined) {
+		visited.set(a, b);
+	} else {
+		// a equals seen and is now compared with b, so b has to equal seen as well.
+		visited.classes ??= new Map();
+		const seenRoot = rootOf(visited.classes, seen);
+		const bRoot = rootOf(visited.classes, b);
+		if (seenRoot === bRoot) {
+			return true;
+		}
+
+		visited.classes.set(bRoot, seenRoot);
+	}
 
 	switch (constructor) {
 		case Array: {
