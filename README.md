@@ -201,9 +201,11 @@ isEqual(a, c); // true — both are an endless chain of {n: 1}
 
 Node's `util.isDeepStrictEqual` returns `false` for this pair.
 
-The comparison recurses once per pair of objects it visits and skips a pair whose objects are already known to be equal,
-so two cycles of coprime lengths `n` and `m` recurse about `n + m` levels deep. Long cycles and deep nesting can exceed
-the call stack and throw a `RangeError`.
+The comparison skips a pair of objects that are already known to be equal, so two cycles of coprime lengths `n` and `m`
+take about `n + m` steps. Recursion stops at a fixed depth: pairs of objects nested deeper are set aside and compared
+once the pairs above them are done, so neither deep nesting nor long cycles exhaust the call stack. A value that keeps
+producing new objects without end, such as one whose getter returns a new object on every read, keeps the comparison
+running until the process runs out of memory.
 
 ### Performance
 

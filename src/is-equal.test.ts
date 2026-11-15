@@ -97,11 +97,33 @@ function ringOf(length: number, lastValue = 1): Record<any, any> {
 	return nodes[0]!;
 }
 
-it.each([[88, 89]])('should compare rings of %i and %i objects #432', (shorter, longer) => {
+it.each([
+	[88, 89],
+	[1000, 1001],
+	[2000, 2001],
+])('should compare rings of %i and %i objects #432', (shorter, longer) => {
 	expect(isEqual(ringOf(shorter), ringOf(longer))).toBe(true);
 	expect(isEqual(ringOf(longer), ringOf(shorter))).toBe(true);
 	expect(isEqual(ringOf(shorter), ringOf(longer, 2))).toBe(false);
 	expect(isEqual(ringOf(longer, 2), ringOf(shorter))).toBe(false);
+});
+
+function chainOf(length: number, lastValue = 1): Record<any, any> {
+	let node: Record<any, any> = {n: lastValue};
+	for (let i = 1; i < length; i++) {
+		node = {n: 1, next: node};
+	}
+
+	return node;
+}
+
+it('should compare values nested deeper than the call stack', () => {
+	expect(isEqual(chainOf(20_000), chainOf(20_000))).toBe(true);
+	expect(isEqual(chainOf(20_000), chainOf(20_000, 2))).toBe(false);
+	expect(isEqual(chainOf(20_000, 2), chainOf(20_000))).toBe(false);
+	expect(isEqual(ringOf(20_000), ringOf(20_000))).toBe(true);
+	expect(isEqual(ringOf(20_000), ringOf(20_000, 2))).toBe(false);
+	expect(isEqual(ringOf(20_000, 2), ringOf(20_000))).toBe(false);
 });
 
 it('should compare circular arrays with different cycle lengths #432', () => {
