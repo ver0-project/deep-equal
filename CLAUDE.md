@@ -14,13 +14,13 @@ Deep equality comparison library. Correctness and comprehensive type support ove
 | `yarn fmt`           | Format with oxfmt               |
 | `yarn fmt:check`     | Check formatting                |
 | `yarn typecheck`     | Type check without emitting     |
-| `yarn build`         | Clean + compile TypeScript      |
+| `yarn build`         | Bundle with `vp pack` (tsdown)  |
 | `yarn benchmark`     | Run vitest benchmarks           |
 
 ## Architecture
 
 ```text
-vite.config.ts             # Vite+ config — test, lint and fmt in one place
+vite.config.ts             # Vite+ config — test, pack, lint and fmt in one place
 src/
   is-equal.ts              # Entire implementation (~157 lines, single exported function)
   is-equal.test.ts         # Test runner — iterates fixture suites + edge case tests
@@ -35,11 +35,14 @@ Single-file library. All comparison logic lives in `src/is-equal.ts` as one modu
 ## Code Conventions
 
 - **Yarn 4** — `yarn@4.17.1`, node-modules linker
-- **TypeScript 7** — native compiler, ESNext target, NodeNext modules
+- **TypeScript 7** — native compiler, type check only (`noEmit`), ESNext target, NodeNext modules
 - **Strict beyond `strict`** — `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`,
-  `erasableSyntaxOnly`; the build emits declarations under `isolatedDeclarations`
+  `erasableSyntaxOnly`
+- **Build** — `vp pack` bundles `src/is-equal.ts` into `dist/is-equal.js` and `dist/is-equal.d.ts`. The oxc generator
+  emits the declaration, so each export carries an explicit type. The syntax target of the output follows
+  `engines.node`. publint and attw check the manifest against the output
 - **ESM only** — `"type": "module"`, `.js` extensions in imports
-- **Vite+ toolchain** — `vp` drives vitest, oxlint and oxfmt; everything is configured in `vite.config.ts`
+- **Vite+ toolchain** — `vp` drives vitest, tsdown, oxlint and oxfmt; everything is configured in `vite.config.ts`
 - **`vite-plus/test`** — test and benchmark files import the test API from it. The package depends on neither `vitest`
   nor `oxlint`; `vite-plus` bundles both
 - **`@ver0/oxlint-config`** — `javascript`, `typescript` + `typescriptUnsafe`, `node` and `vitest` presets. The unsafe

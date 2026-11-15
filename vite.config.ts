@@ -32,6 +32,13 @@ export default defineConfig({
 			exclude: ['src/fixtures/**', ...coverageConfigDefaults.exclude],
 		},
 	},
+	pack: {
+		entry: 'src/is-equal.ts',
+		fixedExtension: false,
+		dts: {generator: 'oxc'},
+		publint: true,
+		attw: {profile: 'esm-only'},
+	},
 	lint: {
 		options: {typeCheck: true},
 		extends: [javascript, typescript, typescriptUnsafe, node, vitest, repoOverrides],
