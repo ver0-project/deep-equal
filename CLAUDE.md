@@ -22,7 +22,7 @@ Deep equality comparison library. Correctness and comprehensive type support ove
 ```text
 vite.config.ts             # Vite+ config — test, pack, lint and fmt in one place
 src/
-  is-equal.ts              # Entire implementation (~210 lines, single exported function)
+  is-equal.ts              # Entire implementation (~230 lines, single exported function)
   is-equal.test.ts         # Test runner — iterates fixture suites + edge case tests
   comparison.benchmark.ts  # Vitest benchmarks vs other libraries
   fixtures/
@@ -31,7 +31,7 @@ src/
 ```
 
 Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function, `inner`,
-with the `rootOf` helper for the union-find lookup.
+with two helpers: `rootOf` for the union-find lookup and `drain` for the pairs deferred at `DEPTH_LIMIT`.
 
 ## Code Conventions
 
@@ -81,8 +81,14 @@ with the `rootOf` helper for the union-find lookup.
   to each other: their classes merge in the union-find `Map` at `visited.classes`, and a pair whose partners already
   share a class counts as equal and is not compared again. Two rings of coprime lengths `n` and `m` visit about `n + m`
   pairs, not `n * m`. A getter whose value changes between reads can therefore see fewer reads than one per pair
-- **Stack depth** — recursive algorithm, deep nesting (>1000 levels) may cause stack overflow. Not mitigated; rare in
-  practice. Two rings of coprime lengths `n` and `m` recurse about `n + m` levels, so long rings can overflow too
+- **Stack depth** — `inner` recurses at most `DEPTH_LIMIT` pairs deep. A pair met at the limit waits in
+  `visited.deferred`, and the outermost frame (`depth` 0) compares the waiting pairs in order. Nesting depth and cycle
+  length never reach the call stack, but a caller that has used most of the stack can still overflow. A waiting pair is
+  compared after its shallower siblings, so user code in those siblings (getters, Proxy traps, custom
+  `valueOf`/`toString`) can run, and throw, where plain recursion would already have returned `false` at a deeper
+  difference. A value that keeps producing new objects without end (a getter returning a new object on every read) runs
+  until the heap runs out: nothing bounds the total work, and `visited.deferred` keeps every deferred pair until the
+  comparison ends
 - **Symbol-keyed properties ignored** — symbols are designed as non-enumerable hidden identifiers for metadata
   (well-known symbols, `$$typeof`), not data-carrying properties. Comparing them as data would contradict their intended
   role

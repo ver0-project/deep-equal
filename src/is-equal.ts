@@ -5,10 +5,14 @@ const {valueOf, toString} = Object.prototype;
 // guard against environments where it is not defined.
 const SAB = globalThis.SharedArrayBuffer ?? Symbol('unavailable');
 
+// recursion stops this many object pairs deep; deeper pairs wait in `deferred` until the outermost pair has compared
+// everything above them, so neither nesting depth nor cycle length can exhaust the call stack.
+const DEPTH_LIMIT = 1000;
+
 // `classes` links objects that must equal each other because they were both compared with one object; a class root has
-// no link.
+// no link. `deferred` holds the pairs met at DEPTH_LIMIT, flattened.
 // oxlint-disable-next-line typescript/no-restricted-types
-type Visited = WeakMap<object, object> & {classes?: Map<unknown, unknown>};
+type Visited = WeakMap<object, object> & {classes?: Map<unknown, unknown>; deferred?: unknown[]};
 
 // path halving relinks every other node on the way to its grandparent, which keeps later walks short.
 const rootOf = (classes: Map<unknown, unknown>, value: unknown): unknown => {
@@ -28,7 +32,7 @@ const rootOf = (classes: Map<unknown, unknown>, value: unknown): unknown => {
 	return node;
 };
 
-const inner = (a: any, b: any, visited: Visited | undefined): boolean => {
+const inner = (a: any, b: any, visited: Visited | undefined, depth: number): boolean => {
 	// in case strict equality - there is nothing to check anymore.
 	if (a === b) {
 		return true;
@@ -114,6 +118,12 @@ const inner = (a: any, b: any, visited: Visited | undefined): boolean => {
 		}
 	}
 
+	if (depth === DEPTH_LIMIT) {
+		// the pairs above this one created visited.
+		(visited!.deferred ??= []).push(a, b);
+		return true;
+	}
+
 	// Track visited pairs to handle circular and cross references.
 	const seen = visited?.get(a);
 	// b is a non-null object here, so a miss (undefined) can never match it.
@@ -144,12 +154,12 @@ const inner = (a: any, b: any, visited: Visited | undefined): boolean => {
 			}
 
 			for (let i = a.length; i-- !== 0;) {
-				if (!inner(a[i], b[i], visited)) {
+				if (!inner(a[i], b[i], visited, depth + 1)) {
 					return false;
 				}
 			}
 
-			return true;
+			return depth !== 0 || drain(visited);
 		}
 
 		case Map: {
@@ -161,12 +171,12 @@ const inner = (a: any, b: any, visited: Visited | undefined): boolean => {
 			const bMap = b as Map<unknown, unknown>;
 
 			for (const entry of a) {
-				if (!bMap.has(entry[0]) || !inner(entry[1], bMap.get(entry[0]), visited)) {
+				if (!bMap.has(entry[0]) || !inner(entry[1], bMap.get(entry[0]), visited, depth + 1)) {
 					return false;
 				}
 			}
 
-			return true;
+			return depth !== 0 || drain(visited);
 		}
 
 		default: {
@@ -196,12 +206,26 @@ const inner = (a: any, b: any, visited: Visited | undefined): boolean => {
 	for (let l = aKeys.length; l-- !== 0;) {
 		// the loop index is bounded by aKeys.length, so the entry is always there.
 		key = aKeys[l]!;
-		if (!Object.hasOwn(b, key) || !inner(a[key], b[key], visited)) {
+		if (!Object.hasOwn(b, key) || !inner(a[key], b[key], visited, depth + 1)) {
 			return false;
+		}
+	}
+
+	return depth !== 0 || drain(visited);
+};
+
+// deferred pairs start again at depth 1, so pairs they defer in turn are appended here instead of drained by them.
+const drain = (visited: Visited): boolean => {
+	const {deferred} = visited;
+	if (deferred !== undefined) {
+		for (let i = 0; i < deferred.length; i += 2) {
+			if (!inner(deferred[i], deferred[i + 1], visited, 1)) {
+				return false;
+			}
 		}
 	}
 
 	return true;
 };
 
-export const isEqual = (a: any, b: any): boolean => inner(a, b, undefined);
+export const isEqual = (a: any, b: any): boolean => inner(a, b, undefined, 0);
