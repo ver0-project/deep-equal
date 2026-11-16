@@ -32,7 +32,33 @@ const rootOf = (classes: Map<unknown, unknown>, value: unknown): unknown => {
 	return node;
 };
 
-const inner = (a: any, b: any, visited: Visited | undefined, depth: number): boolean => {
+const builtinOf = (value: unknown): unknown => {
+	if (value instanceof Map) {
+		return Map;
+	}
+
+	if (value instanceof Set) {
+		return Set;
+	}
+
+	// the switches in `inner` match this realm's classes only; Array.isArray would also take another realm's arrays.
+	// oxlint-disable-next-line unicorn/no-instanceof-array, unicorn/no-instanceof-builtins
+	if (value instanceof Array) {
+		return Array;
+	}
+
+	if (value instanceof ArrayBuffer) {
+		return ArrayBuffer;
+	}
+
+	if (typeof SAB === 'function' && value instanceof SAB) {
+		return SAB;
+	}
+
+	return undefined;
+};
+
+const inner = (a: any, b: any, visited: Visited | undefined, depth: number, builtin?: unknown): boolean => {
 	// in case strict equality - there is nothing to check anymore.
 	if (a === b) {
 		return true;
@@ -52,7 +78,7 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number): boo
 		return false;
 	}
 
-	const {constructor} = a;
+	const constructor = builtin ?? a.constructor;
 
 	switch (constructor) {
 		case Date: {
@@ -114,6 +140,13 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number): boo
 				}
 
 				return true;
+			}
+
+			if (constructor !== Object && constructor !== Array && constructor !== Map) {
+				const base = builtinOf(a);
+				if (base !== undefined) {
+					return inner(a, b, visited, depth, base);
+				}
 			}
 		}
 	}

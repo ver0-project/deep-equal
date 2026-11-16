@@ -166,6 +166,25 @@ different.
 Byte-level comparison has a correctness advantage: it preserves NaN bit patterns. A `Float64Array([NaN])` compared
 element-by-element would fail because `NaN !== NaN`, but comparing the underlying bytes works correctly.
 
+#### Subclasses of Built-in Types
+
+Two instances of a class that extends `Array`, `Set`, `Map`, `ArrayBuffer` or `SharedArrayBuffer` are compared the same
+way as two instances of the class it extends:
+
+```javascript
+class Tags extends Set {}
+
+isEqual(new Tags(['a']), new Tags(['a'])); // true
+isEqual(new Tags(['a']), new Tags(['b'])); // false
+```
+
+`Array`, `Set` and `Map` subclass instances are read through their `length`, `size`, `has()`, `get()` and iteration, so
+a subclass that overrides them is compared through its overrides. Own enumerable properties of such an instance are not
+compared, the same as for the built-in classes themselves.
+
+Subclasses of `Date` and `RegExp` are compared through the `valueOf()` and `toString()` they inherit (see Custom
+Classes), and subclasses of the TypedArrays and `DataView` by their bytes.
+
 #### Custom Classes
 
 When two objects share the same prototype but don't match any of the built-in types above, `isEqual` checks whether the
@@ -235,6 +254,7 @@ Check out the benchmarks by running `yarn benchmark` in the project directory.
 - SharedArrayBuffers
 - DataViews
 - TypedArrays (Int8Array, Uint8Array, Float64Array, etc.)
+- Subclasses of the built-in types above
 - Objects with null prototypes
 - Objects with custom `valueOf()` / `toString()`
 - Any objects with circular references

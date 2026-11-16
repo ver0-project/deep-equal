@@ -19,6 +19,12 @@ class MyMap extends Map {}
 
 class MySet extends Set {}
 
+class MyArray extends Array {}
+
+class MyArrayBuffer extends ArrayBuffer {}
+
+class MySharedArrayBuffer extends SharedArrayBuffer {}
+
 const emptyObject = {};
 
 function map(object: Record<any, any>, Class?: any) {
@@ -45,6 +51,12 @@ function set(array: any[], Class?: any) {
 
 function mySet(array: any[]) {
 	return set(array, MySet);
+}
+
+function bytes(values: number[], Buffer: new (length: number) => ArrayBufferLike) {
+	const buffer = new Buffer(values.length);
+	new Uint8Array(buffer).set(values);
+	return buffer;
 }
 
 export const testCases: TestSuite[] = [
@@ -333,6 +345,36 @@ export const testCases: TestSuite[] = [
 				value2: [0, 1],
 				equal: false,
 			},
+			{
+				name: 'equal arrays of objects (instances of the same subclass)',
+				value1: MyArray.of({a: 'a'}, {b: 'b'}),
+				value2: MyArray.of({a: 'a'}, {b: 'b'}),
+				equal: true,
+			},
+			{
+				name: 'not equal arrays of objects (instances of the same subclass)',
+				value1: MyArray.of({a: 'a'}, {b: 'b'}),
+				value2: MyArray.of({a: 'a'}, {b: 'c'}),
+				equal: false,
+			},
+			{
+				name: 'not equal arrays with the same string form (instances of the same subclass)',
+				value1: MyArray.of(1, null),
+				value2: MyArray.of('1', undefined),
+				equal: false,
+			},
+			{
+				name: 'not equal arrays (same items - instances of different classes)',
+				value1: [1, 2],
+				value2: MyArray.of(1, 2),
+				equal: false,
+			},
+			{
+				name: 'equal arrays (different own properties - instances of the same subclass)',
+				value1: Object.assign(MyArray.of(1, 2), {label: 'a'}),
+				value2: Object.assign(MyArray.of(1, 2), {label: 'b'}),
+				equal: true,
+			},
 		],
 	},
 	{
@@ -547,6 +589,36 @@ export const testCases: TestSuite[] = [
 				equal: false,
 			},
 			{
+				name: 'not equal maps (different key value - instances of the same subclass)',
+				value1: myMap({a: 1, b: '2', c: 3}),
+				value2: myMap({a: 1, b: '2', c: 4}),
+				equal: false,
+			},
+			{
+				name: 'not equal maps (different keys - instances of the same subclass)',
+				value1: myMap({a: 1, b: '2', c: 3}),
+				value2: myMap({a: 1, b: '2', d: 3}),
+				equal: false,
+			},
+			{
+				name: 'not equal maps (extra key - instances of the same subclass)',
+				value1: myMap({a: 1, b: '2'}),
+				value2: myMap({a: 1, b: '2', c: []}),
+				equal: false,
+			},
+			{
+				name: 'equal maps (same sub-keys - instances of the same subclass)',
+				value1: myMap({a: [myMap({b: 'c'})]}),
+				value2: myMap({a: [myMap({b: 'c'})]}),
+				equal: true,
+			},
+			{
+				name: 'not equal maps (different sub-key value - instances of the same subclass)',
+				value1: myMap({a: [myMap({b: 'c'})]}),
+				value2: myMap({a: [myMap({b: 'd'})]}),
+				equal: false,
+			},
+			{
 				name: 'empty map and empty object are not equal',
 				value1: {},
 				value2: new Map(),
@@ -646,6 +718,36 @@ export const testCases: TestSuite[] = [
 				value1: set(['a', 'b', 'c']),
 				value2: set(['a', 'b', 'd']),
 				equal: false,
+			},
+			{
+				name: 'not equal sets (extra value - instances of the same subclass)',
+				value1: mySet(['a', 'b']),
+				value2: mySet(['a', 'b', 'c']),
+				equal: false,
+			},
+			{
+				name: 'not equal sets (different values - instances of the same subclass)',
+				value1: mySet(['a', 'b', 'c']),
+				value2: mySet(['a', 'b', 'd']),
+				equal: false,
+			},
+			{
+				name: 'equal sets (same instances of objects - instances of the same subclass)',
+				value1: mySet(['a', emptyObject]),
+				value2: mySet(['a', emptyObject]),
+				equal: true,
+			},
+			{
+				name: 'not equal sets (different instances of objects - instances of the same subclass)',
+				value1: mySet(['a', {}]),
+				value2: mySet(['a', {}]),
+				equal: false,
+			},
+			{
+				name: 'equal sets (different own properties - instances of the same subclass)',
+				value1: Object.assign(mySet(['a', 'b']), {label: 'a'}),
+				value2: Object.assign(mySet(['a', 'b']), {label: 'b'}),
+				equal: true,
 			},
 			{
 				name: 'not equal sets (different instances of objects)',
@@ -905,6 +1007,18 @@ export const testCases: TestSuite[] = [
 				value2: new ArrayBuffer(4),
 				equal: false,
 			},
+			{
+				name: 'equal shared buffers (instances of the same subclass)',
+				value1: bytes([1, 2, 3], MySharedArrayBuffer),
+				value2: bytes([1, 2, 3], MySharedArrayBuffer),
+				equal: true,
+			},
+			{
+				name: 'not equal shared buffers (different content - instances of the same subclass)',
+				value1: bytes([1, 2, 3], MySharedArrayBuffer),
+				value2: bytes([1, 3, 3], MySharedArrayBuffer),
+				equal: false,
+			},
 		],
 	},
 	{
@@ -932,6 +1046,24 @@ export const testCases: TestSuite[] = [
 				name: 'not equal buffers (different length)',
 				value1: new Uint16Array([1, 2, 3]).buffer,
 				value2: new Uint16Array([1, 2]).buffer,
+				equal: false,
+			},
+			{
+				name: 'equal buffers (instances of the same subclass)',
+				value1: bytes([1, 2, 3], MyArrayBuffer),
+				value2: bytes([1, 2, 3], MyArrayBuffer),
+				equal: true,
+			},
+			{
+				name: 'not equal buffers (different item - instances of the same subclass)',
+				value1: bytes([1, 2, 3], MyArrayBuffer),
+				value2: bytes([1, 3, 3], MyArrayBuffer),
+				equal: false,
+			},
+			{
+				name: 'not equal buffers (different length - instances of the same subclass)',
+				value1: bytes([1, 2, 3], MyArrayBuffer),
+				value2: bytes([1, 2], MyArrayBuffer),
 				equal: false,
 			},
 		],
