@@ -12,7 +12,7 @@ const DEPTH_LIMIT = 1000;
 // `classes` links objects that must equal each other because they were both compared with one object; a class root has
 // no link. `deferred` holds the pairs met at DEPTH_LIMIT, flattened.
 // oxlint-disable-next-line typescript/no-restricted-types
-type Visited = WeakMap<object, object> & {classes?: Map<unknown, unknown>; deferred?: unknown[]};
+type Visited = Map<object, object> & {classes?: Map<unknown, unknown>; deferred?: unknown[]};
 
 // path halving relinks every other node on the way to its grandparent, which keeps later walks short.
 const rootOf = (classes: Map<unknown, unknown>, value: unknown): unknown => {
@@ -164,8 +164,8 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 		return true;
 	}
 
-	// lazily initialize WeakMap — avoids allocation when comparing non-recursive types
-	visited ??= new WeakMap();
+	// lazily initialize the map — avoids allocation when comparing non-recursive types
+	visited ??= new Map();
 	if (seen === undefined) {
 		visited.set(a, b);
 	} else {
