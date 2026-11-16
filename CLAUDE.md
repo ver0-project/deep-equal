@@ -75,14 +75,16 @@ and `drain` for the pairs deferred at `DEPTH_LIMIT`.
 
 - **Sets use reference equality** — `new Set([{a:1}])` vs `new Set([{a:1}])` returns `false`. Intentional — respects the
   Set's own SameValueZero identity model rather than overriding it with deep comparison
-- **Lazy WeakMap** — created only when recursion into objects/arrays/maps occurs. Primitives, Date, RegExp, Set, and
-  TypedArray comparisons never allocate it
+- **Lazy visited map** — created only when recursion into objects/arrays/maps occurs. Primitives, Date, RegExp, Set, and
+  TypedArray comparisons never allocate it. It is a strong `Map`, not a `WeakMap`: the `WeakMap` measured 5 to 12%
+  slower on nested values (Node 26.13.1, not measured on other engines). The `Map` keeps every object it records alive
+  until the call returns, including objects that a getter created for the comparison
 - **Cycles compare by unfolded value** — two circular structures are equal when they unfold to the same value, even with
-  cycle lengths that differ. Node's `util.isDeepStrictEqual` returns `false` for such pairs. The visited WeakMap maps
-  each object to the first object it was compared with. An object met with a second partner makes the two partners equal
-  to each other: their classes merge in the union-find `Map` at `visited.classes`, and a pair whose partners already
-  share a class counts as equal and is not compared again. Two rings of coprime lengths `n` and `m` visit about `n + m`
-  pairs, not `n * m`. A getter whose value changes between reads can therefore see fewer reads than one per pair
+  cycle lengths that differ. Node's `util.isDeepStrictEqual` returns `false` for such pairs. The visited map maps each
+  object to the first object it was compared with. An object met with a second partner makes the two partners equal to
+  each other: their classes merge in the union-find `Map` at `visited.classes`, and a pair whose partners already share
+  a class counts as equal and is not compared again. Two rings of coprime lengths `n` and `m` visit about `n + m` pairs,
+  not `n * m`. A getter whose value changes between reads can therefore see fewer reads than one per pair
 - **Stack depth** — `inner` recurses at most `DEPTH_LIMIT` pairs deep. A pair met at the limit waits in
   `visited.deferred`, and the outermost frame (`depth` 0) compares the waiting pairs in order. Nesting depth and cycle
   length never reach the call stack, but a caller that has used most of the stack can still overflow. A waiting pair is
