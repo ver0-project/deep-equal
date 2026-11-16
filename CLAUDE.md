@@ -31,7 +31,8 @@ src/
 ```
 
 Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function, `inner`,
-with two helpers: `rootOf` for the union-find lookup and `drain` for the pairs deferred at `DEPTH_LIMIT`.
+with three helpers: `builtinOf` for the built-in class a subclass instance extends, `rootOf` for the union-find lookup
+and `drain` for the pairs deferred at `DEPTH_LIMIT`.
 
 ## Code Conventions
 
@@ -59,7 +60,8 @@ with two helpers: `rootOf` for the union-find lookup and `drain` for the pairs d
 - **Variable reuse**: parameters `a`/`b` may be reassigned locally — intentional, not a bug
 - **Cached prototype methods**: `const {valueOf, toString} = Object.prototype` at module scope
 - **oxlint-disable comments** are intentional — `typescript/unbound-method` on the prototype method cache,
-  `typescript/no-restricted-types` on the `Visited` type, `no-self-compare` on the NaN checks
+  `typescript/no-restricted-types` on the `Visited` type, `no-self-compare` on the NaN checks,
+  `unicorn/no-instanceof-array` and `unicorn/no-instanceof-builtins` on `builtinOf`'s `Array` check
 
 ## Testing
 
@@ -96,6 +98,13 @@ with two helpers: `rootOf` for the union-find lookup and `drain` for the pairs d
   function reference. Classes without these return false for different instances with same data
 - **TypedArray byte comparison** — all TypedArrays and DataViews compared via Uint8Array over their
   `byteOffset`/`byteLength` slice. Byte-level comparison preserves NaN bit patterns
+- **Built-in subclasses** — the switches in `inner` match `constructor` by identity, so a `Map`, `Set`, `Array`,
+  `ArrayBuffer` or `SharedArrayBuffer` subclass instance misses every case. The first switch's `default` finds the
+  built-in with `builtinOf` and calls `inner` again with it as `builtin`. `builtinOf` uses `instanceof`, because
+  `Object.getPrototypeOf` measured several times slower there. Exact `Object`, `Array` and `Map` instances also reach
+  that `default` and skip the lookup. `Date`, `RegExp`, TypedArray and `DataView` subclasses stay off this path: they
+  already compare through `valueOf`, `toString` and `ArrayBuffer.isView`, and routing an invalid `Date` subclass
+  instance to `getTime` changes its answer
 
 <git-commit-config>
 <extra-instructions>
