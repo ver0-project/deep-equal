@@ -1396,7 +1396,7 @@ __metadata:
     dequal: "npm:^2.0.3"
     fast-deep-equal: "npm:^3.1.3"
     publint: "npm:^0.3.25"
-    react-fast-compare: "npm:^3.2.2"
+    react-fast-compare: "npm:^3.2.3"
     semantic-release: "npm:^25.0.9"
     typescript: "npm:^7.0.2"
     vite-plus: "npm:^1.6.0"
@@ -5296,10 +5296,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-fast-compare@npm:^3.2.2":
-  version: 3.2.2
-  resolution: "react-fast-compare@npm:3.2.2"
-  checksum: 10c0/0bbd2f3eb41ab2ff7380daaa55105db698d965c396df73e6874831dbafec8c4b5b08ba36ff09df01526caa3c61595247e3269558c284e37646241cba2b90a367
+"react-fast-compare@npm:^3.2.3":
+  version: 3.2.3
+  resolution: "react-fast-compare@npm:3.2.3"
+  checksum: 10c0/f1c7f3b7c4c6189e9cf74fcefc88c262dca138a038bc41c5c355aafd1cf36cd32dab1b6901d80a56db7f9ec3f92db705fe45f6f458593b3b0538ab3f1946fe99
   languageName: node
   linkType: hard
 
