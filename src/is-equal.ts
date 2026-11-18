@@ -305,7 +305,8 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 				return false;
 			}
 
-			for (let i = a.length; i-- !== 0;) {
+			// constraint: an object that only inherits from Array.prototype can hold any value in `length`.
+			for (let i = Math.min(a.length, 2 ** 32 - 1); i-- > 0;) {
 				if (!inner(a[i], b[i], visited, depth + 1)) {
 					return false;
 				}
