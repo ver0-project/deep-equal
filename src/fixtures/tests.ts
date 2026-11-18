@@ -59,6 +59,13 @@ function bytes(values: number[], Buffer: new (length: number) => ArrayBufferLike
 	return buffer;
 }
 
+function withOwnConstructor<T extends Set<unknown> | Map<unknown, unknown> | unknown[]>(
+	value: T,
+	constructor: unknown,
+): T {
+	return Object.assign(value, {constructor});
+}
+
 export const testCases: TestSuite[] = [
 	{
 		name: 'scalars',
@@ -297,6 +304,36 @@ export const testCases: TestSuite[] = [
 				value2: {toString: () => 'Hi!'},
 				equal: false,
 			},
+			{
+				name: 'equal objects (own `constructor` property holding Set)',
+				value1: {constructor: Set},
+				value2: {constructor: Set},
+				equal: true,
+			},
+			{
+				name: 'equal objects (own `constructor` property holding Map)',
+				value1: {constructor: Map},
+				value2: {constructor: Map},
+				equal: true,
+			},
+			{
+				name: 'equal objects (own `constructor` property holding Date)',
+				value1: {constructor: Date},
+				value2: {constructor: Date},
+				equal: true,
+			},
+			{
+				name: 'not equal objects (different property values - own `constructor` property holding RegExp)',
+				value1: {constructor: RegExp, a: 1},
+				value2: {constructor: RegExp, a: 2},
+				equal: false,
+			},
+			{
+				name: 'not equal objects (different property values - own `constructor` property holding ArrayBuffer)',
+				value1: {constructor: ArrayBuffer, a: 1},
+				value2: {constructor: ArrayBuffer, a: 2},
+				equal: false,
+			},
 		],
 	},
 
@@ -374,6 +411,12 @@ export const testCases: TestSuite[] = [
 				value1: Object.assign(MyArray.of(1, 2), {label: 'a'}),
 				value2: Object.assign(MyArray.of(1, 2), {label: 'b'}),
 				equal: true,
+			},
+			{
+				name: 'not equal arrays of objects (own `constructor` property holding Object)',
+				value1: withOwnConstructor([{a: 1}], Object),
+				value2: withOwnConstructor([{a: 2}], Object),
+				equal: false,
 			},
 		],
 	},
@@ -619,6 +662,18 @@ export const testCases: TestSuite[] = [
 				equal: false,
 			},
 			{
+				name: 'not equal maps (different key value - own `constructor` property holding Object)',
+				value1: withOwnConstructor(map({a: 1}), Object),
+				value2: withOwnConstructor(map({a: 2}), Object),
+				equal: false,
+			},
+			{
+				name: 'not equal maps (different key value - instances of the same subclass with own `constructor` property)',
+				value1: withOwnConstructor(myMap({a: 1}), Object),
+				value2: withOwnConstructor(myMap({a: 2}), Object),
+				equal: false,
+			},
+			{
 				name: 'empty map and empty object are not equal',
 				value1: {},
 				value2: new Map(),
@@ -748,6 +803,18 @@ export const testCases: TestSuite[] = [
 				value1: Object.assign(mySet(['a', 'b']), {label: 'a'}),
 				value2: Object.assign(mySet(['a', 'b']), {label: 'b'}),
 				equal: true,
+			},
+			{
+				name: 'not equal sets (different values - own `constructor` property holding Object)',
+				value1: withOwnConstructor(set([1]), Object),
+				value2: withOwnConstructor(set([2]), Object),
+				equal: false,
+			},
+			{
+				name: 'not equal sets (different values - instances of the same subclass with own `constructor` property)',
+				value1: withOwnConstructor(mySet([1]), Object),
+				value2: withOwnConstructor(mySet([2]), Object),
+				equal: false,
 			},
 			{
 				name: 'not equal sets (different instances of objects)',

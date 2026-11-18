@@ -91,6 +91,10 @@ Boxed primitives (`new Number()`, `new String()`, `new Boolean()`) are compared 
 
 Two objects are first checked for matching prototypes — if their prototypes differ, they are not equal.
 
+The prototype also decides how the two objects are compared: as dates, sets, arrays and so on. A `constructor` property
+plays no part, whether it is the object's own or a replaced one on its class's prototype, so
+`isEqual({constructor: Array}, {constructor: Array})` compares two plain objects and returns `true`.
+
 Then, both objects must have the same number of own enumerable string-keyed properties. Each property value is compared
 recursively.
 

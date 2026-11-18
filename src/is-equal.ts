@@ -4,6 +4,7 @@ const {valueOf, toString} = Object.prototype;
 // SharedArrayBuffer requires cross-origin isolation headers in browsers;
 // guard against environments where it is not defined.
 const SAB = globalThis.SharedArrayBuffer ?? Symbol('unavailable');
+const sabPrototype = typeof SAB === 'function' ? SAB.prototype : SAB;
 
 // recursion stops this many object pairs deep; deeper pairs wait in `deferred` until the outermost pair has compared
 // everything above them, so neither nesting depth nor cycle length can exhaust the call stack.
@@ -34,25 +35,25 @@ const rootOf = (classes: Map<unknown, unknown>, value: unknown): unknown => {
 
 const builtinOf = (value: unknown): unknown => {
 	if (value instanceof Map) {
-		return Map;
+		return Map.prototype;
 	}
 
 	if (value instanceof Set) {
-		return Set;
+		return Set.prototype;
 	}
 
-	// the switches in `inner` match this realm's classes only; Array.isArray would also take another realm's arrays.
+	// the switches in `inner` match this realm's prototypes only; Array.isArray would also take another realm's arrays.
 	// oxlint-disable-next-line unicorn/no-instanceof-array, unicorn/no-instanceof-builtins
 	if (value instanceof Array) {
-		return Array;
+		return Array.prototype;
 	}
 
 	if (value instanceof ArrayBuffer) {
-		return ArrayBuffer;
+		return ArrayBuffer.prototype;
 	}
 
 	if (typeof SAB === 'function' && value instanceof SAB) {
-		return SAB;
+		return sabPrototype;
 	}
 
 	return undefined;
@@ -73,23 +74,23 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 		return a !== a && b !== b;
 	}
 
-	// if constructors are different, objects are definitely not equal.
-	if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
+	const prototype = Object.getPrototypeOf(a);
+	if (prototype !== Object.getPrototypeOf(b)) {
 		return false;
 	}
 
-	const constructor = builtin ?? a.constructor;
+	const kind = builtin ?? prototype;
 
-	switch (constructor) {
-		case Date: {
+	switch (kind) {
+		case Date.prototype: {
 			return a.getTime() === b.getTime();
 		}
 
-		case RegExp: {
+		case RegExp.prototype: {
 			return a.source === b.source && a.flags === b.flags;
 		}
 
-		case Set: {
+		case Set.prototype: {
 			if (a.size !== b.size) {
 				return false;
 			}
@@ -106,8 +107,8 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 			return true;
 		}
 
-		case SAB:
-		case ArrayBuffer: {
+		case sabPrototype:
+		case ArrayBuffer.prototype: {
 			const a8 = new Uint8Array(a);
 			const b8 = new Uint8Array(b);
 
@@ -142,7 +143,7 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 				return true;
 			}
 
-			if (constructor !== Object && constructor !== Array && constructor !== Map) {
+			if (kind !== Object.prototype && kind !== Array.prototype && kind !== Map.prototype) {
 				const base = builtinOf(a);
 				if (base !== undefined) {
 					return inner(a, b, visited, depth, base);
@@ -180,8 +181,8 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 		visited.classes.set(bRoot, seenRoot);
 	}
 
-	switch (constructor) {
-		case Array: {
+	switch (kind) {
+		case Array.prototype: {
 			if (a.length !== b.length) {
 				return false;
 			}
@@ -195,7 +196,7 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 			return depth !== 0 || drain(visited);
 		}
 
-		case Map: {
+		case Map.prototype: {
 			if (a.size !== b.size) {
 				return false;
 			}
