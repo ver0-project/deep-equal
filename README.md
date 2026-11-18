@@ -205,6 +205,32 @@ representation is the basis for equality.
 Classes that don't define custom `valueOf()` or `toString()` fall through to property-by-property comparison, just like
 plain objects.
 
+#### Values from Other Realms
+
+A value created in another realm, such as a `node:vm` context or an iframe, has that realm's prototypes. Two values from
+the same other realm are compared the way two values from this realm are: arrays by their elements, Maps by their
+entries, Sets by membership, buffers by their bytes, and other objects through `valueOf()`, `toString()` or their keys,
+where that realm's `Object.prototype.valueOf` and `Object.prototype.toString` count as not defined by the class.
+
+```javascript
+import vm from 'node:vm';
+
+const context = vm.createContext({});
+isEqual(vm.runInContext('({a: [1]})', context), vm.runInContext('({a: [1]})', context)); // true
+isEqual(vm.runInContext('({a: [1]})', context), {a: [1]}); // false — the prototypes differ
+```
+
+An array from another realm is recognized with `Array.isArray`. A `Map`, `Set`, `ArrayBuffer` or `SharedArrayBuffer` is
+recognized by this realm's `size` or `byteLength` getter, which reads an internal slot that instances from every realm
+carry. A value whose `Symbol.toStringTag` names one of these four is checked as that one only, and a value without a
+`Symbol.toStringTag` as none of them. A value with any other tag, such as a subclass that replaces it, or with a tag
+that throws when read, is checked as a `Map` and a `Set` when it has a `size` property, and as either buffer when it has
+a `byteLength` property. Arrays, Maps and Sets from another realm are copied into this realm's before their contents are
+compared.
+
+An object from another realm never equals an object from this realm or from a third realm, because their prototypes
+differ, unless both have a `null` prototype.
+
 #### Circular References
 
 Circular and cross-references between objects are handled correctly. Visited object pairs are tracked during recursion
@@ -261,4 +287,5 @@ Check out the benchmarks by running `yarn benchmark` in the project directory.
 - Subclasses of the built-in types above
 - Objects with null prototypes
 - Objects with custom `valueOf()` / `toString()`
+- Values from another realm (`node:vm` contexts, iframes), compared with values from the same realm
 - Any objects with circular references

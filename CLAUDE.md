@@ -32,8 +32,9 @@ src/
 ```
 
 Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function, `inner`,
-with three helpers: `builtinOf` for the prototype of the built-in a subclass instance extends, `rootOf` for the
-union-find lookup and `drain` for the pairs deferred at `DEPTH_LIMIT`.
+with helpers: `builtinOf` for the prototype of the built-in a subclass instance extends, `otherRealmBuiltinOf`,
+`hasSlot` and `realmObjectPrototypeOf` for values from another realm, `rootOf` for the union-find lookup and `drain` for
+the pairs deferred at `DEPTH_LIMIT`.
 
 ## Code Conventions
 
@@ -112,6 +113,12 @@ union-find lookup and `drain` for the pairs deferred at `DEPTH_LIMIT`.
   reach that `default` and skip the lookup. `Date`, `RegExp`, TypedArray and `DataView` subclasses stay off this path:
   they already compare through `valueOf`, `toString` and `ArrayBuffer.isView`, and routing an invalid `Date` subclass
   instance to `getTime` changes its answer
+- **Other realms** — when `builtinOf` misses, a value that is not `instanceof Object` and whose chain ends in another
+  realm's `Object.prototype` (`realmObjectPrototypeOf`) is classified by `otherRealmBuiltinOf`, and that realm's
+  `valueOf` and `toString` become the defaults. Its arrays, Maps and Sets are compared as this realm's copies. Never let
+  another realm's containers reach the loops in `inner`: V8 keeps type feedback per code site, and this realm's array,
+  `Map` and `Set` comparisons then measured up to 3.7 times slower in the same process (Node 26.13.1, not measured on
+  other engines)
 
 <git-commit-config>
 <extra-instructions>

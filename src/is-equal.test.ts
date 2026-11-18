@@ -256,3 +256,140 @@ it('should not let a constructor replaced on a class prototype select the compar
 	expect(isEqualWithTimeout(new Point(1), new Point(2))).toBe(false);
 	expect(isEqualWithTimeout(new Point(2), new Point(1))).toBe(false);
 });
+
+const otherRealm = createContext();
+
+function fromOtherRealm(source: string): unknown {
+	return runInContext(source, otherRealm);
+}
+
+fromOtherRealm(`
+globalThis.Point = class Point {
+	constructor(x) {
+		this.x = x;
+	}
+};
+
+globalThis.TaggedMap = class TaggedMap extends Map {
+	get [Symbol.toStringTag]() {
+		return 'TaggedMap';
+	}
+};
+
+globalThis.TaggedSet = class TaggedSet extends Set {
+	get [Symbol.toStringTag]() {
+		return 'TaggedSet';
+	}
+};
+
+globalThis.UnreadableTagMap = class UnreadableTagMap extends Map {
+	get [Symbol.toStringTag]() {
+		throw new Error('unreadable');
+	}
+};
+
+globalThis.TaggedBuffer = class TaggedBuffer extends ArrayBuffer {
+	get [Symbol.toStringTag]() {
+		return 'TaggedBuffer';
+	}
+};
+
+globalThis.TaggedSharedBuffer = class TaggedSharedBuffer extends SharedArrayBuffer {
+	get [Symbol.toStringTag]() {
+		return 'TaggedSharedBuffer';
+	}
+};
+
+globalThis.filled = (Buffer, byte) => {
+	const buffer = new Buffer(2);
+	new Uint8Array(buffer).fill(byte);
+	return buffer;
+};
+
+globalThis.chainOf = (length, lastValue) => {
+	let node = {n: lastValue};
+	for (let i = 1; i < length; i++) {
+		node = [1, {n: 1, next: node}];
+	}
+
+	return node;
+};
+
+globalThis.ringOf = (length, lastValue) => {
+	const nodes = Array.from({length}, () => new Map([['n', 1]]));
+	nodes[length - 1].set('n', lastValue);
+	for (let i = 0; i < length; i++) {
+		nodes[i].set('next', nodes[(i + 1) % length]);
+	}
+
+	return nodes[0];
+};
+`);
+
+it.each([
+	['({a: 1})', '({a: 1})', true],
+	['({a: 1})', '({a: 2})', false],
+	[
+		'({[Symbol.toStringTag]: "Thing", size: 1, byteLength: 1})',
+		'({[Symbol.toStringTag]: "Thing", size: 1, byteLength: 1})',
+		true,
+	],
+	['({[Symbol.toStringTag]: "Thing", size: 1})', '({[Symbol.toStringTag]: "Thing", size: 2})', false],
+	['[1]', '[1]', true],
+	['[1]', '[2]', false],
+	['[{a: 1}]', '[{a: 2}]', false],
+	['new Set([1])', 'new Set([1])', true],
+	['new Set([1])', 'new Set([2])', false],
+	['new Set([{a: 1}])', 'new Set([{a: 1}])', false],
+	['new Map([[1, 1]])', 'new Map([[1, 1]])', true],
+	['new Map([[{a: 1}, 1]])', 'new Map([[{a: 1}, 1]])', false],
+	['new Map([[1, 1]])', 'new Map([[1, 2]])', false],
+	['new Map([[1, {a: 1}]])', 'new Map([[1, {a: 2}]])', false],
+	['/a/g', '/a/g', true],
+	['/a/g', '/a/i', false],
+	['new ArrayBuffer(2)', 'new ArrayBuffer(2)', true],
+	['new Uint8Array([1]).buffer', 'new Uint8Array([2]).buffer', false],
+	['new SharedArrayBuffer(2)', 'new SharedArrayBuffer(2)', true],
+	['new SharedArrayBuffer(2)', 'new SharedArrayBuffer(3)', false],
+	['new Error("x")', 'new Error("x")', true],
+	['new Error("x")', 'new Error("y")', false],
+	['new Point(1)', 'new Point(1)', true],
+	['new Point(1)', 'new Point(2)', false],
+	['new TaggedMap([[1, 1]])', 'new TaggedMap([[1, 1]])', true],
+	['new TaggedMap([[1, 1]])', 'new TaggedMap([[1, 2]])', false],
+	['new TaggedSet([1])', 'new TaggedSet([1])', true],
+	['new TaggedSet([1])', 'new TaggedSet([2])', false],
+	['new UnreadableTagMap([[1, 1]])', 'new UnreadableTagMap([[1, 1]])', true],
+	['new UnreadableTagMap([[1, 1]])', 'new UnreadableTagMap([[1, 2]])', false],
+	['filled(TaggedBuffer, 1)', 'filled(TaggedBuffer, 1)', true],
+	['filled(TaggedBuffer, 1)', 'filled(TaggedBuffer, 2)', false],
+	['filled(TaggedSharedBuffer, 1)', 'filled(TaggedSharedBuffer, 1)', true],
+	['filled(TaggedSharedBuffer, 1)', 'filled(TaggedSharedBuffer, 2)', false],
+	['({[Symbol.toStringTag]: "Set", a: 1})', '({[Symbol.toStringTag]: "Set", a: 1})', true],
+	['({[Symbol.toStringTag]: "Set", a: 1})', '({[Symbol.toStringTag]: "Set", a: 2})', false],
+	['new Map()', 'Object.create(Map.prototype)', false],
+	['chainOf(20000, 1)', 'chainOf(20000, 1)', true],
+	['chainOf(20000, 1)', 'chainOf(20000, 2)', false],
+	['ringOf(20000, 1)', 'ringOf(20000, 1)', true],
+	['ringOf(20000, 1)', 'ringOf(20000, 2)', false],
+	['ringOf(88, 1)', 'ringOf(89, 1)', true],
+])('should compare %s and %s from another realm by content #441', (source1, source2, equal) => {
+	const a = fromOtherRealm(source1);
+	const b = fromOtherRealm(source2);
+
+	expect(isEqual(a, b)).toBe(equal);
+	expect(isEqual(b, a)).toBe(equal);
+});
+
+it('should not equal a value from another realm with a value from this realm #441', () => {
+	expect(isEqual(fromOtherRealm('({a: 1})'), {a: 1})).toBe(false);
+	expect(isEqual({a: 1}, fromOtherRealm('({a: 1})'))).toBe(false);
+	expect(isEqual(fromOtherRealm('[1]'), [1])).toBe(false);
+	expect(isEqual([1], fromOtherRealm('[1]'))).toBe(false);
+});
+
+it('should compare values from another realm nested in values from this realm #441', () => {
+	expect(isEqual([fromOtherRealm('({a: 1})')], [fromOtherRealm('({a: 1})')])).toBe(true);
+	expect(isEqual([fromOtherRealm('({a: 1})')], [fromOtherRealm('({a: 2})')])).toBe(false);
+	expect(isEqual([fromOtherRealm('({a: 2})')], [fromOtherRealm('({a: 1})')])).toBe(false);
+});
