@@ -22,7 +22,7 @@ Deep equality comparison library. Correctness and comprehensive type support ove
 ```text
 vite.config.ts             # Vite+ config — test, pack, lint and fmt in one place
 src/
-  is-equal.ts              # Entire implementation (~230 lines, single exported function)
+  is-equal.ts              # Entire implementation (single exported function)
   is-equal.test.ts         # Test runner — iterates fixture suites + edge case tests
   node-vm.d.ts             # Types for the node:vm calls in tests — tsconfig `types: []` keeps @types/node out
   comparison.benchmark.ts  # Vitest benchmarks vs other libraries
@@ -56,7 +56,10 @@ the pairs deferred at `DEPTH_LIMIT`.
 
 ## Implementation Patterns
 
-- **Reverse iteration** in hot loops: `for (let i = length; i-- !== 0;)`
+- **Reverse iteration** in hot loops: `for (let i = length; i-- !== 0;)`. The array loop is
+  `for (let i = Math.min(a.length, 2 ** 32 - 1); i-- > 0;)`, because `a.length` there can be any value: an object that
+  inherits from `Array.prototype` need not be an array. A length that does not convert to a positive number ends the
+  loop at once, and a number above the largest length of an array is cut to that length, so the loop always ends
 - **Self-comparison for NaN**: `a !== a && b !== b` (faster than `Number.isNaN`)
 - **Prototype-based dispatch**: both `switch` statements in `inner` match the prototype against `Date.prototype`,
   `Set.prototype` and the rest. Never read `a.constructor` to pick a comparison — an own or replaced `constructor` is

@@ -257,6 +257,18 @@ it('should not let a constructor replaced on a class prototype select the compar
 	expect(isEqualWithTimeout(new Point(2), new Point(1))).toBe(false);
 });
 
+it('should return for objects that inherit from Array.prototype with a length that no array has', () => {
+	const withLength = (length: unknown, first?: unknown): unknown =>
+		Object.assign(Object.create(Array.prototype), {length, 0: first});
+	const claimingArray = (): unknown => new Proxy({}, {getPrototypeOf: () => Array.prototype});
+
+	expect(isEqualWithTimeout(withLength('x'), withLength('x'))).toBe(true);
+	expect(isEqualWithTimeout(withLength(-1), withLength(-1))).toBe(true);
+	expect(isEqualWithTimeout(withLength(0.5), withLength(0.5))).toBe(true);
+	expect(isEqualWithTimeout(withLength('1', 1), withLength('1', 2))).toBe(false);
+	expect(isEqualWithTimeout(claimingArray(), claimingArray())).toBe(true);
+});
+
 const otherRealm = createContext();
 
 function fromOtherRealm(source: string): unknown {
