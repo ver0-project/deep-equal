@@ -1,3 +1,4 @@
+import {createContext, runInContext} from 'node:vm';
 import {describe, expect, it} from 'vite-plus/test';
 import type {TestSuite} from './fixtures/tests.js';
 import {testCases} from './fixtures/tests.js';
@@ -217,4 +218,41 @@ it('should require matching valueOf/toString implementations', () => {
 
 	expect(isEqual(a, b)).toBe(true);
 	expect(isEqual(a, c)).toBe(false);
+});
+
+// constraint: the vm timeout also stops isEqual, which belongs to this realm, so a pair that never returns throws here
+// instead of hanging the suite.
+function isEqualWithTimeout(a: unknown, b: unknown): unknown {
+	return runInContext('isEqual(a, b)', createContext({isEqual, a, b}), {timeout: 1000});
+}
+
+it('should compare objects with an own constructor property holding Array by their keys #440', () => {
+	expect(isEqualWithTimeout({constructor: Array}, {constructor: Array})).toBe(true);
+	expect(isEqualWithTimeout({constructor: Array, a: 1}, {constructor: Array, a: 2})).toBe(false);
+	expect(isEqualWithTimeout({constructor: Array, a: 2}, {constructor: Array, a: 1})).toBe(false);
+});
+
+it('should compare a Set with an own constructor property holding Array as a Set #440', () => {
+	const one = (): Set<number> => Object.assign(new Set([1]), {constructor: Array});
+	const two = (): Set<number> => Object.assign(new Set([2]), {constructor: Array});
+
+	expect(isEqualWithTimeout(one(), one())).toBe(true);
+	expect(isEqualWithTimeout(one(), two())).toBe(false);
+	expect(isEqualWithTimeout(two(), one())).toBe(false);
+});
+
+it('should not let a constructor replaced on a class prototype select the comparison #440', () => {
+	class Point {
+		x: number;
+
+		constructor(x: number) {
+			this.x = x;
+		}
+	}
+
+	Point.prototype.constructor = Array;
+
+	expect(isEqualWithTimeout(new Point(1), new Point(1))).toBe(true);
+	expect(isEqualWithTimeout(new Point(1), new Point(2))).toBe(false);
+	expect(isEqualWithTimeout(new Point(2), new Point(1))).toBe(false);
 });

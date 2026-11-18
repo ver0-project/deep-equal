@@ -24,6 +24,7 @@ vite.config.ts             # Vite+ config — test, pack, lint and fmt in one pl
 src/
   is-equal.ts              # Entire implementation (~230 lines, single exported function)
   is-equal.test.ts         # Test runner — iterates fixture suites + edge case tests
+  node-vm.d.ts             # Types for the node:vm calls in tests — tsconfig `types: []` keeps @types/node out
   comparison.benchmark.ts  # Vitest benchmarks vs other libraries
   fixtures/
     tests.ts               # Test case definitions (TestSuite[] with TestCase[])
@@ -31,8 +32,8 @@ src/
 ```
 
 Single-file library. All comparison logic lives in `src/is-equal.ts` as one module-level recursive function, `inner`,
-with three helpers: `builtinOf` for the built-in class a subclass instance extends, `rootOf` for the union-find lookup
-and `drain` for the pairs deferred at `DEPTH_LIMIT`.
+with three helpers: `builtinOf` for the prototype of the built-in a subclass instance extends, `rootOf` for the
+union-find lookup and `drain` for the pairs deferred at `DEPTH_LIMIT`.
 
 ## Code Conventions
 
@@ -56,7 +57,9 @@ and `drain` for the pairs deferred at `DEPTH_LIMIT`.
 
 - **Reverse iteration** in hot loops: `for (let i = length; i-- !== 0;)`
 - **Self-comparison for NaN**: `a !== a && b !== b` (faster than `Number.isNaN`)
-- **Prototype-based type checking**: `Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)` before constructor checks
+- **Prototype-based dispatch**: both `switch` statements in `inner` match the prototype against `Date.prototype`,
+  `Set.prototype` and the rest. Never read `a.constructor` to pick a comparison — an own or replaced `constructor` is
+  user data
 - **Variable reuse**: parameters `a`/`b` may be reassigned locally — intentional, not a bug
 - **Cached prototype methods**: `const {valueOf, toString} = Object.prototype` at module scope
 - **oxlint-disable comments** are intentional — `typescript/unbound-method` on the prototype method cache,
@@ -70,6 +73,8 @@ and `drain` for the pairs deferred at `DEPTH_LIMIT`.
 - **Adding tests**: Add `TestCase` entries to the appropriate suite in `src/fixtures/tests.ts` — include both equal and
   not-equal cases
 - **Edge cases**: Standalone `it()` blocks in `is-equal.test.ts` for circular refs, null-prototype, NaN
+- **Pairs that can hang**: a pair that never returns when the code regresses goes through `isEqualWithTimeout` in
+  `is-equal.test.ts`, never into the fixtures — a hang in the fixture loop blocks the whole suite
 
 ## Gotchas
 
@@ -100,12 +105,12 @@ and `drain` for the pairs deferred at `DEPTH_LIMIT`.
   function reference. Classes without these return false for different instances with same data
 - **TypedArray byte comparison** — all TypedArrays and DataViews compared via Uint8Array over their
   `byteOffset`/`byteLength` slice. Byte-level comparison preserves NaN bit patterns
-- **Built-in subclasses** — the switches in `inner` match `constructor` by identity, so a `Map`, `Set`, `Array`,
+- **Built-in subclasses** — the switches in `inner` match the prototype by identity, so a `Map`, `Set`, `Array`,
   `ArrayBuffer` or `SharedArrayBuffer` subclass instance misses every case. The first switch's `default` finds the
-  built-in with `builtinOf` and calls `inner` again with it as `builtin`. `builtinOf` uses `instanceof`, because
-  `Object.getPrototypeOf` measured several times slower there. Exact `Object`, `Array` and `Map` instances also reach
-  that `default` and skip the lookup. `Date`, `RegExp`, TypedArray and `DataView` subclasses stay off this path: they
-  already compare through `valueOf`, `toString` and `ArrayBuffer.isView`, and routing an invalid `Date` subclass
+  built-in's prototype with `builtinOf` and calls `inner` again with it as `builtin`. `builtinOf` uses `instanceof`,
+  because `Object.getPrototypeOf` measured several times slower there. Exact `Object`, `Array` and `Map` instances also
+  reach that `default` and skip the lookup. `Date`, `RegExp`, TypedArray and `DataView` subclasses stay off this path:
+  they already compare through `valueOf`, `toString` and `ArrayBuffer.isView`, and routing an invalid `Date` subclass
   instance to `getTime` changes its answer
 
 <git-commit-config>
