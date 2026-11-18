@@ -59,6 +59,104 @@ const builtinOf = (value: unknown): unknown => {
 	return undefined;
 };
 
+// constraint: V8 keeps type feedback per code site, so another realm's arrays, Maps and Sets read by the loops in `inner`
+// slow down every later comparison of this realm's ones; they are compared as this realm's copies.
+const otherRealmArray = Symbol('array from another realm');
+const otherRealmMap = Symbol('Map from another realm');
+
+// constraint: this realm's `size` and `byteLength` getters read an internal slot, which instances from every realm
+// carry, and throw for any other value.
+const hasSlot = (
+	owner: Map<unknown, unknown> | Set<unknown> | ArrayBufferLike,
+	getter: string,
+	value: unknown,
+): boolean => {
+	try {
+		Reflect.get(owner, getter, value);
+		return true;
+	} catch {
+		return false;
+	}
+};
+
+const otherRealmBuiltinOf = (value: any): unknown => {
+	if (Array.isArray(value)) {
+		return otherRealmArray;
+	}
+
+	let tag: unknown;
+	try {
+		tag = value[Symbol.toStringTag];
+	} catch {
+		tag = null;
+	}
+
+	switch (tag) {
+		case undefined: {
+			return undefined;
+		}
+
+		case 'Map': {
+			return hasSlot(Map.prototype, 'size', value) ? otherRealmMap : undefined;
+		}
+
+		case 'Set': {
+			return hasSlot(Set.prototype, 'size', value) ? Set.prototype : undefined;
+		}
+
+		case 'ArrayBuffer': {
+			return hasSlot(ArrayBuffer.prototype, 'byteLength', value) ? ArrayBuffer.prototype : undefined;
+		}
+
+		case 'SharedArrayBuffer': {
+			return typeof SAB === 'function' && hasSlot(SAB.prototype, 'byteLength', value) ? sabPrototype : undefined;
+		}
+
+		default: {
+			// constraint: a subclass can replace its Symbol.toStringTag, but its chain still holds the `size` or
+			// `byteLength` of the built-in it extends.
+			if ('size' in value) {
+				if (hasSlot(Map.prototype, 'size', value)) {
+					return otherRealmMap;
+				}
+
+				if (hasSlot(Set.prototype, 'size', value)) {
+					return Set.prototype;
+				}
+			}
+
+			if ('byteLength' in value) {
+				if (hasSlot(ArrayBuffer.prototype, 'byteLength', value)) {
+					return ArrayBuffer.prototype;
+				}
+
+				if (typeof SAB === 'function' && hasSlot(SAB.prototype, 'byteLength', value)) {
+					return sabPrototype;
+				}
+			}
+
+			return undefined;
+		}
+	}
+};
+
+// constraint: a realm's Object.prototype is the prototype of that realm's Function.prototype, which is the prototype of
+// the Object constructor it holds. A chain that ends anywhere else gets undefined.
+const realmObjectPrototypeOf = (prototype: unknown): any => {
+	let end: any = prototype;
+	for (let next = Object.getPrototypeOf(end); next !== null; next = Object.getPrototypeOf(end)) {
+		end = next;
+	}
+
+	const realmObject: unknown = end.constructor;
+	if (typeof realmObject !== 'function') {
+		return undefined;
+	}
+
+	const realmFunctionPrototype = Object.getPrototypeOf(realmObject);
+	return realmFunctionPrototype !== null && Object.getPrototypeOf(realmFunctionPrototype) === end ? end : undefined;
+};
+
 const inner = (a: any, b: any, visited: Visited | undefined, depth: number, builtin?: unknown): boolean => {
 	// in case strict equality - there is nothing to check anymore.
 	if (a === b) {
@@ -80,6 +178,8 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 	}
 
 	const kind = builtin ?? prototype;
+	let realmValueOf: unknown = valueOf;
+	let realmToString: unknown = toString;
 
 	switch (kind) {
 		case Date.prototype: {
@@ -143,8 +243,26 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 				return true;
 			}
 
-			if (kind !== Object.prototype && kind !== Array.prototype && kind !== Map.prototype) {
-				const base = builtinOf(a);
+			if (builtin === undefined && kind !== Object.prototype && kind !== Array.prototype && kind !== Map.prototype) {
+				let base = builtinOf(a);
+				if (base === undefined && prototype !== null && !(a instanceof Object)) {
+					const realmObjectPrototype = realmObjectPrototypeOf(prototype);
+					if (realmObjectPrototype !== undefined) {
+						base = otherRealmBuiltinOf(a);
+						if (base !== otherRealmBuiltinOf(b)) {
+							return false;
+						}
+
+						if (base === Set.prototype) {
+							a = new Set(a);
+							b = new Set(b);
+						}
+
+						realmValueOf = realmObjectPrototype.valueOf;
+						realmToString = realmObjectPrototype.toString;
+					}
+				}
+
 				if (base !== undefined) {
 					return inner(a, b, visited, depth, base);
 				}
@@ -213,6 +331,14 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 			return depth !== 0 || drain(visited);
 		}
 
+		case otherRealmArray: {
+			return inner([...a], [...b], visited, depth, Array.prototype);
+		}
+
+		case otherRealmMap: {
+			return inner(new Map(a), new Map(b), visited, depth, Map.prototype);
+		}
+
 		default: {
 			break;
 		}
@@ -220,14 +346,14 @@ const inner = (a: any, b: any, visited: Visited | undefined, depth: number, buil
 
 	// at this point, we've handled all possible data containers and we can compare objects as plain.
 
-	if (typeof a.valueOf === 'function' && a.valueOf !== valueOf && a.valueOf === b.valueOf) {
+	if (typeof a.valueOf === 'function' && a.valueOf !== realmValueOf && a.valueOf === b.valueOf) {
 		const aVal = a.valueOf();
 		const bVal = b.valueOf();
 		// oxlint-disable-next-line no-self-compare
 		return aVal === bVal || (aVal !== aVal && bVal !== bVal);
 	}
 
-	if (typeof a.toString === 'function' && a.toString !== toString && a.toString === b.toString) {
+	if (typeof a.toString === 'function' && a.toString !== realmToString && a.toString === b.toString) {
 		return a.toString() === b.toString();
 	}
 
